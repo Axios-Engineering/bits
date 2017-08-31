@@ -71,11 +71,11 @@ apt-get install python-crypto python-serial python-netifaces python-magic
 curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
+# Install dependencies into node_modules
+npm install
+
 # Setup development environment
 npm run build
-
-# Install Yarn
-npm install yarn
 
 # Start BITS
 npm run dev
