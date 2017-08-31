@@ -68,8 +68,10 @@ https://nodejs.org/en/download/package-manager/
 ``` bash
 # Install Node.js v6.x python-crypto python-serial python-netifaces python-magic
 apt-get install python-crypto python-serial python-netifaces python-magic
-curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -
-sudo apt-get install -y nodejs
+
+# Install Node.js using nvm
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
+nvm install 6.11.1
 
 # Install dependencies into node_modules
 npm install
