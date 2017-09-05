@@ -98,6 +98,27 @@ npm install yarn
 npm run build
 ```
 
+## Using Docker
+
+Docker is an easy and quick way to get started with BITS, follow the instructions at www.docker.com to install the Docker system onto your machine.  Once you have Docker installed  you can run BITS using the following command:
+
+``` bash
+docker run -it -p 9000:9000 -p 9001:9001 lgsinnovations/bits
+```
+
+BITS should now be running and is accessible at https://localhost:9001.
+
+The `/var/bits` folder within Docker is configured as a volume, so you can add
+and remove modules using the web interface.  You can also create a named volume
+so that it is easy to manage the modules from the command-line, for example:
+
+``` bash
+docker volume create --name=bits-data
+docker run -d -p 9000:9000 -p 9001:9001 -v bits-data:/var/bits --name=bits lgsinnovations/bits
+docker cp tutorials-helloworld bits:/var/bits/base/modules/modules/tutorials-hellowolld
+docker restart bits
+```
+
 # Modules
 
 BITS is a framework built around modules. The base BITS framework is made useful with the creation and addition of module functionality. A module is run by BITS and provides a concrete and specific feature addition to the system. Examples of modules are GNSS (GPS), Networking, and MongoDB. Chances are you are interested in BITS as a means to build a module, or to use somebody else's module. Groups of modules that work together for a specific use case are Optimized Module Groupings (OMG).
