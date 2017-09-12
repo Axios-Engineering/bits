@@ -172,7 +172,7 @@ The core infrastructure to BITS is based around a system called the message cent
 Request listeners are used to return a value back to the original requester. If one module adds a listener like:
 
 ``` javascript
-this._messageCenter.addRequestListener('myEvent', {scopes: null}, (name) => {
+this._messageCenter.addRequestListener('myEvent', {scopes: null}, (metadata, name) => {
   return 'Hello ' + name;
 })
 ```
