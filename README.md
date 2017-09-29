@@ -7,7 +7,6 @@ BITS
 - [Quickstart](#quickstart)
 - [Modules](#modules)
     - [package.json](#packagejson)
-    - [module.json](#modulejson)
     - [index.js](#indexjs)
 - [Optimized Module Groupings](#optimized-module-groupings)
 - [Scopes](#scopes)
@@ -101,11 +100,50 @@ Every module runs inside their own process and are installed to the base data di
 
 ## package.json
 
-The package.json file specifies all the scripts and npm configurations for the bits module. Every package.json should have a scripts section with two scripts specified. bits:install and build. bits:install will run when an OMG or a module is uploaded to the system. bits:install should run everything your module needs to run on the system. bits:build is what is used to do a comprehensive build. This should include lint checks as well as running bits:install.
+Every BITS module requires a minimal package.json file that specifes it's name, version, and bits dependency.
 
-## module.json
+```json
+{
+  "name": "an-awesome-bits-module",
+  "version": "1.0.0",
+  "module-dependencies": {
+    "bits": "^2.0.0"
+  }
+}
+```
 
-BITS requires every module to have a module.json file. The module.json specifies information specific to that module including its name, version, scopes, and widgets.
+The `module-dependencies` declare run-time dependencies on other BITS modules.
+If a module requires development or run-time dependencies from an NPM
+repository, these can be included in the package.json using standard NPM
+semantics.
+
+```json
+{
+  "name": "an-awesome-bits-module",
+  "version": "1.0.0",
+  "module-dependencies": {
+    "bits": "^2.0.0"
+  },
+  "dependencies": {
+    "node-ipc": "^9.1.1"
+  },
+  "devDependencies": {
+    "eslint": "^4.4.1"
+  }
+}
+```
+
+BITS supports additional extentions to package.json that specifies information specific to BITS modules.
+
+* `appDir` - The folder that contains the Polymer components for the module UI.
+* `contentImport` - The Polymer component to import for the module UI.
+* `contentElement` -  The Polyermer component element to instantiate for the module UI.
+* `displayName` - The name to display in the BITS main menu.
+* `icon` - The icon to use in the BITS main menu.
+* `category` - The category to use in the BITS main menu.
+* `scopes` - The scopes associated with this module.
+* `allowedGroups` - Groups allowed to use this module.
+* `groups` - Group defined by this module.
 
 ## index.js
 
