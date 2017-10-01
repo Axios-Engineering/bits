@@ -53,7 +53,7 @@ limitations under the License.
         .then(() => {
           if (page) {
             return this._createPageElement(page)
-            .then((element) => this._showElement(element));
+            .then((element) => element && this._showElement(element));
           } else {
             return this._showLoading();
           }
@@ -66,7 +66,7 @@ limitations under the License.
           const element = this.create(page.element);
           if (Polymer.isInstance(element)) {
             return element;
-          } else {
+          } else if (page.element && page.import) {
             return this._showLoading()
             .then(() => this._importHref(page.import))
             .then(() => element);
