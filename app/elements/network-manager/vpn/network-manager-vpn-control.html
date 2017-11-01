@@ -1,0 +1,227 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+
+<!--iron-->
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+
+<!--paper-->
+<link rel="import" href="/bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="/bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="/bower_components/paper-listbox/paper-listbox.html">
+
+<!--neon-->
+<link rel="import" href="/bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="/bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<!--bits base-->
+<link rel="import" href="/elements/base-database/base-model-client-behavior.html">
+<link rel="import" href="/elements/base-storage/base-setting.html">
+
+<!--network-manager-->
+<link rel="import" href="/elements/network-manager/vpn/network-manager-vpn-upload.html">
+
+<dom-module id="network-manager-vpn-control">
+
+  <style include="iron-flex iron-flex-alignment">
+
+    :host{
+      height: 100%;
+      width: 100%;
+    }
+
+    .page-content {
+      width: 100%;
+      @apply(--layout-horizontal);
+      @apply(--layout-justified);
+      @apply(--layout-flex);
+    }
+
+    .center {
+      @apply(--layout-center-center);
+      height: 100%;
+      width: 100%;
+    }
+
+    .vpnToolbar {
+      --paper-toolbar-background: white;
+      --paper-toolbar-color: --dark-theme-text-color;
+    }
+
+    paper-dropdown-menu {
+      margin-left: 16px;
+    }
+
+    .page-actions {
+      margin: 8px 16px 8px 16px;
+    }
+
+    paper-toggle-button {
+      padding: 16px 16px 16px 16px;
+    }
+
+    /*TODO Media query to make it collapse to single column for mobile*/
+  </style>
+
+  <template>
+    <base-setting key="network-manager#vpn#autostart" data="{{autostart}}"></base-setting>
+    <base-setting key="network-manager#vpn#selectedConfig" data="{{config}}"></base-setting>
+
+    <div class="page-content">
+      <paper-dropdown-menu label="OPVN Configuration">
+        <paper-listbox attr-for-selected="value" selected="{{config}}" class="dropdown-content">
+          <template is="dom-repeat" items="{{configs}}">
+            <paper-item value="{{item}}">{{item}}</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+
+      <paper-toggle-button checked="{{autostart}}">Auto Start</paper-toggle-button>
+
+      <!--<div class="buttons">-->
+        <!--<paper-toggle-button checked="{{autostart}}">Auto Start</paper-toggle-button>-->
+      <!--</div>-->
+    </div>
+
+    <div class="page-actions">
+      <paper-button on-tap="_onVpnCommand" disabled="{{_isButtonDisabled(configs, config, state)}}">{{_calculateButtonText(state)}}</paper-button>
+    </div>
+
+    <network-manager-vpn-upload id="vpnConfigUploader"></network-manager-vpn-upload>
+
+  </template>
+
+  <script>
+    var CLIENT_PROPERTY_KEY = 'networkmanager#vpnConfigClient';
+    var VPN_CONFIGS = CLIENT_PROPERTY_KEY + 'vpn-configs';
+    var VPN_CONFIG_ADDED = CLIENT_PROPERTY_KEY + 'vpn-config-added';
+    var VPN_COMMAND = CLIENT_PROPERTY_KEY + 'vpn-command';
+
+    var VPN_REQUEST = CLIENT_PROPERTY_KEY + 'vpn-request';
+    var VPN_STATUS = 'vpn-status-changed';
+    var SOCKET_STATUS = CLIENT_PROPERTY_KEY + VPN_STATUS;
+
+    (function() {
+      'use strict';
+
+      Polymer({
+
+        is: 'network-manager-vpn-control',
+
+        behaviors: [Bits.BaseModelClientBehavior],
+
+        properties: {
+          prefix: {
+              value: CLIENT_PROPERTY_KEY
+          },
+
+          page: {
+            type: String,
+          },
+
+          configs: {
+            type: Array,
+            notify: true,
+            value: function() {
+              return [];
+            },
+            observer: '_onConfigChange',
+          },
+
+          autostart: {
+            type: Boolean,
+            value: false,
+          },
+
+          config: {
+            type: String,
+            value: '',
+          },
+
+          state: {
+            type: Boolean,
+            value: false
+          }
+        },
+
+        listeners: {
+          'vpn-command': '_onVpnCommand'
+        },
+
+        ready: function() {
+          this.addSocketEventListener(VPN_CONFIG_ADDED, this._configsUpdated.bind(this));
+          this.addSocketEventListener(SOCKET_STATUS, this._stateChanged.bind(this));
+          return this._getVpnConfigs();
+        },
+
+        _onConfigChange() {
+          if( this.configs.length === 0) {
+            this.set('page', "empty");
+          } else {
+            this.set('page', "normal");
+          }
+        },
+
+        _isButtonDisabled(configs, config, state) {
+
+            if(state === true) {
+              return false;
+            } else {
+              if( config) {
+                return !configs.find(function(item) {
+                  if( config === item) {
+                    return true;
+                  }
+                  return false;
+                });
+              }
+              return true;
+            }
+        },
+
+        _calculateButtonText(state) {
+            if( state === true) {
+              return 'Stop Vpn';
+            }
+            else {
+              return 'Start Vpn'
+            }
+
+        },
+
+        _stateChanged(value) {
+          this.set('state', value);
+        },
+
+
+        _getVpnConfigs() {
+          var self = this;
+          return this.createRequest(VPN_CONFIGS)
+            .then(function(vpns) {
+              self.set('configs', vpns);
+              return self.createRequest(VPN_REQUEST);
+            })
+            .then(function(state) {
+              self.set('state', state);
+            });
+        },
+
+        _configsUpdated(configs) {
+          this.set('configs', configs);
+        },
+
+        _onVpnCommand: function() {
+          return this.createRequest(VPN_COMMAND)
+          .catch(function(err) {
+            console.log('Vpn Error', err);
+          });
+        },
+
+        _onAdd: function() {
+          this.fire('show-upload');
+        }
+
+      });
+
+    }());
+  </script>
+
+</dom-module>

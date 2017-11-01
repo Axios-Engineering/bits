@@ -1,0 +1,307 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="../../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+
+<link rel="import" href="../../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+
+<!--iron-->
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<!--paper-->
+<link rel="import" href="../../../bower_components/font-roboto/roboto.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../../../bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../bower_components/paper-spinner/paper-spinner.html">
+
+<!--network-manager-->
+<link rel="import" href="./network-interfaces.html">
+
+<dom-module id="bonding-page">
+
+  <template>
+
+    <style include="app-grid-style">
+
+      :host{
+        display: block;
+        box-sizing: border-box;
+        padding: 8px 8px 8px 8px;
+        @apply(--layout-vertical);
+      }
+
+      #header {
+        position: absolute;
+        border-bottom: 1px solid lightgrey;
+      }
+
+      .toast-action {
+        float: right;
+        color:  white;
+      }
+
+      #interfaceGrid {
+        border-bottom: 1px solid lightgrey;
+        @apply(--layout-flex);
+      }
+
+      .container {
+        box-sizing: border-box;
+      }
+
+      #footer {
+        height: 64px;
+        margin-top: 8px;
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        @apply(--layout-end-justified);
+      }
+
+      #toastSuccess {
+        --paper-toast-color: lightblue;
+      }
+
+      #toastError {
+        --paper-toast-color: orangered;
+      }
+
+      /*
+      Change the data session button styling when it is pressed IE has the 'active' attribute
+       */
+      #btnBond[active] {
+        background: red;
+        color: white;
+      }
+
+    </style>
+
+    <!--Message center communication and data from the server-->
+    <network-interfaces id="interfaces" interfaces="{{interfaces}}"></network-interfaces>
+
+    <app-header-layout has-scrolling-region fullbleed>
+
+      <app-header id="header">
+        <app-toolbar>
+          <div main-title>Bonding Configuration</div>
+        </app-toolbar>
+      </app-header>
+
+      <!--content-->
+      <vaadin-grid class="container" id="interfaceGrid" selection-mode="multi" items="[[interfaces]]">
+        <table>
+          <colgroup>
+            <col name="name">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>Interface</th>
+          </tr>
+          </thead>
+        </table>
+      </vaadin-grid>
+
+      <div class="container" id="footer">
+        <!--<paper-button id="btnBond" raised toggles on-tap="_onTapData">-->
+        <paper-button id="btnBond" raised toggles on-tap="_onTapBond" disabled="{{isStartDataDisabled}}">
+          <iron-icon id="iconBond" icon="[[btnBondIcon]]"></iron-icon>
+          Bond
+        </paper-button>
+      </div>
+      <!--/content-->
+
+    </app-header-layout>
+
+    <paper-toast text="Success: changes applied." id="toastSuccess">
+      <span class="toast-action" on-tap="_dismissSuccessToast">Dismiss</span>
+    </paper-toast>
+
+    <paper-toast text="Error! ethernet error!" id="toastError">
+      <span class="toast-action" on-tap="_dismissErrorToast">Dismiss</span>
+    </paper-toast>
+
+    <paper-dialog id="loader">
+      <h2>Configuring interfaces...</h2>
+      <paper-spinner active></paper-spinner>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+    ((global) => {
+      'use strict';
+
+      const TAG = 'NETWORK_MGR:BOND:CONFIG_APP';
+      const debug = window.Bits.utils.getDebugger(TAG);
+
+//      const debug = () => {};
+
+      const TOAST_DURATION_LONG = 5000;
+      const TOAST_DURATION_SHORT = 2000;
+
+      const BUTTON_ICONS = {
+        INACTIVE: 'av:play-arrow',
+        ACTIVE: 'av:stop',
+      };
+
+      Polymer({
+
+        is: 'bonding-page',
+
+        behaviors: [
+          Polymer.IronResizableBehavior
+        ],
+
+        properties: {
+          interfaces: {
+            type: Array,
+            notify: true,
+            observer: '_observeInterfaces'
+          },
+
+          btnBondIcon: {
+            type: String,
+            notify: true,
+            value: function() {
+              return BUTTON_ICONS.INACTIVE;
+            }
+          },
+
+          numSelectedIfaces: {
+            type: Number,
+            notify:true,
+            value: 0
+          },
+
+          isStartDataDisabled: {
+            type: Boolean,
+            notify: true,
+            computed: '_computeIsStartDataDisabled(numSelectedIfaces)'
+          },
+        },
+
+        ready: function () {
+          this.$.interfaceGrid.addEventListener('selected-items-changed', this._onVaadinItemSelected.bind(this));
+        },
+
+        /**
+         * Event handler for when a user clicks apply on a specific configuration card.
+         */
+        save: function(ifaceArray, setBondingEnabled){
+          // Save if we don't have any validation errors and not remotely editing
+          return Promise.resolve()
+            .then(() => this.$.loader.open())
+            .then(() => this.$.interfaces.save(ifaceArray, setBondingEnabled))
+            .then(() => this.$.loader.close())
+            .then(() => this._showSuccessToast(null, TOAST_DURATION_SHORT))
+            .catch(() => {
+              this.$.loader.close();
+              this._showErrorToast(null, TOAST_DURATION_LONG);
+              return this.$.interfaces.getInterfaces();
+            });
+        },
+
+        _showSuccessToast(message, duration) {
+          const properties = {
+            duration: duration,
+          };
+
+          if(message) {
+            properties.text = message;
+          }
+
+          this.$.toastSuccess.show(properties);
+        },
+
+        _showErrorToast(message, duration) {
+          const properties = {
+            duration: duration,
+          };
+
+          if(message) {
+            properties.text = message;
+          }
+
+          this.$.toastError.show(properties);
+        },
+
+        _dismissErrorToast: function() {
+          this.$.toastError.close();
+        },
+
+        _dismissSuccessToast: function() {
+          this.$.toastSuccess.close();
+        },
+
+        _computeIsStartDataDisabled: function(numSelectedIfaces) {
+          return numSelectedIfaces === 0;
+        },
+
+        _observeInterfaces: function (newVal, oldVal) {
+          this.$.btnBond.active = false;
+          this.set('btnBondIcon', BUTTON_ICONS.INACTIVE);
+          this._setVaadinGridEnabled(true);
+
+          // init
+          newVal.forEach((config, index) => {
+            if(config.hasDataSession) {
+              this.$.interfaceGrid.selection.select(index);
+              this.$.btnBond.active = true;
+              this.set('btnBondIcon', BUTTON_ICONS.ACTIVE);
+              this._setVaadinGridEnabled(false);
+            }
+          });
+        },
+
+        /**
+         * Handle when things are selected from the vaadin grid
+         * NOTE: Binding to the selection property on the grid does not work but this will.
+         */
+        _onVaadinItemSelected: function() {
+          this.set('numSelectedIfaces', this.$.interfaceGrid.selection.size);
+        },
+
+        // NOTE: The vaadin-grid does not implement 'disabled' like other polymer elements so we manually do it
+        _setVaadinGridEnabled: function (isEnabled) {
+          if(isEnabled) {
+            this.$.interfaceGrid.disabled = false;
+            this.$.interfaceGrid.style.opacity = '1';
+          } else {
+            this.$.interfaceGrid.disabled = true;
+            this.$.interfaceGrid.style.opacity = '0.3';
+          }
+        },
+
+        _onTapBond: function() {
+          // get the interfaceGrid that are selected
+          let selectedInterfaces = [];
+          let grid = this.$.interfaceGrid;
+          grid.selection.selected(function (index) {
+            //  build an array of interfaces so we can tell the server to start/stop the data session with those
+            selectedInterfaces.push(grid.items[index].name);
+          });
+
+          let setDataEnabled = this.$.btnBond.active;
+
+          //update the UI
+          if(!setDataEnabled) {
+            this.set('btnBondIcon', BUTTON_ICONS.INACTIVE);
+            this._setVaadinGridEnabled(true);
+          } else {
+            this.set('btnBondIcon', BUTTON_ICONS.ACTIVE);
+            this._setVaadinGridEnabled(false);
+          }
+
+          return this.save(selectedInterfaces, setDataEnabled);
+        },
+
+      }); // End polymer
+
+    })(this);
+  </script>
+
+</dom-module>

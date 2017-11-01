@@ -1,0 +1,20 @@
+{
+    "category": "System",
+    "scopes": [
+        {
+            "displayName": "Networking",
+            "name": "networking"
+        }
+    ],
+    "displayName": "Network",
+    "name": "network-manager",
+    "appDir": "app/",
+    "contentImport": "/elements/network-manager/network-manager-app.html",
+    "contentElement": "network-manager-app",
+    "version": "",
+    "dependencies": {
+        "settings": "^2.0.0",
+        "bits-base": "^2.0.0"
+    },
+    "icon": "icons:cloud-queue"
+}

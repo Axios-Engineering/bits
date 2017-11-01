@@ -1,0 +1,11 @@
+#Overall gitignore file for BITS
+
+#Ignore vim swap files
+*~
+*.swp
+*.swo
+
+*.pyc
+npm-debug.log
+node_modules/
+bower_components/

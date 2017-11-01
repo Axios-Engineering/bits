@@ -1,0 +1,103 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/vaadin-upload/vaadin-upload.html">
+
+<!--papger-->
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="/bower_components/paper-progress/paper-progress.html">
+
+<dom-module id="network-manager-vpn-upload">
+  <template>
+    <style>
+      :host {
+        display: block;
+        --vaadin-upload-file-list: {
+          width: 300px;
+        };
+      }
+      paper-progress {
+        margin: 4px;
+      }
+    </style>
+
+      <vaadin-upload
+          method="POST"
+          target="/api/network-manager/vpn/upload"
+          accept=".ovpn"
+          headers="{'Accept': 'application/json'}">
+      </vaadin-upload>
+
+  </template>
+  <script>
+  (function () {
+    'use strict';
+
+    Polymer({
+      is: 'network-manager-vpn-upload',
+
+      properties: {
+        uploadFiles: {
+          type: Object,
+        },
+        loading: {
+          type: Boolean,
+          computed: '_computeLoading(_loadingCount)'
+        },
+
+        _loadingCount: {
+          type: Number,
+          value: 0
+        }
+      },
+
+      _computeLoading: function (loadingCount) {
+        return 0 < loadingCount;
+      },
+
+      _startLoading: function () {
+        this._loadingCount = this._loadingCount + 1;
+      },
+
+      _stopLoading: function () {
+        this._loadingCount = this._loadingCount - 1;
+        if (0 > this._loadingCount) {
+          this._loadingCount = 0;
+        }
+      },
+
+      listeners: {
+        'upload-before': '_startLoading',
+        'upload-error': '_onUploadError',
+        'upload-success': '_onUploadSuccess',
+        'upload-abort': '_stopLoading'
+      },
+
+      _onUploadError: function (e, detail) {
+        this._stopLoading();
+
+        var response = JSON.parse(detail.xhr.responseText);
+
+        this.fire('vpn-upload-response', response);
+
+        var app = document.querySelector('#app');
+        if (app) {
+          var errors = response.errors;
+          errors.forEach(function (error) {
+            app.showMessage(error.message);
+          });
+        }
+      },
+
+      _onUploadSuccess: function (e, detail) {
+        this._stopLoading();
+
+        var response = detail.response;
+
+        this.fire('vpn-upload-success', response);
+      },
+
+    });
+
+  }());
+  </script>
+</dom-module>

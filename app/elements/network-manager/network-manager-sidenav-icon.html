@@ -1,0 +1,89 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="network-manager-sidenav-icon">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      .wrapper {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 0px;
+      }
+    </style>
+
+    <div class="wrapper">
+
+      <iron-icon id="icon" icon="[[icon]]"></iron-icon>
+
+    </div>
+
+  </template>
+  <script>
+  (function () {
+    'use strict';
+
+    Polymer({
+
+      is: 'network-manager-sidenav-icon',
+
+      properties: {
+
+        icon: {
+          type: String
+        },
+
+        iconSize: {
+          type: Number,
+          observer: '_sizeChanged',
+          value: 18
+        },
+
+        containerWidth: {
+          type: Number,
+          value: 48
+        }
+
+      },
+
+      _sizeChanged: function (size) {
+        if ('number' !== typeof(size) || Number.NaN === size) {
+          size = 18;
+        }
+
+        const sizeString = size.toString() + 'px';
+
+        this.$.icon.updateStyles({
+          '--iron-icon-height': sizeString,
+          '--iron-icon-width': sizeString
+        });
+      },
+
+      observers: [
+        '_adjustMargins(containerWidth, iconSize)'
+      ],
+
+      _adjustMargins: function (width, size) {
+        if ('number' !== typeof(width) || Number.NaN === width) {
+          width = 48;
+        }
+        if ('number' !== typeof(size) || Number.NaN === size) {
+          size = 18;
+        }
+
+        const marginSize = (width - size) / 2;
+        const marginSizeString = marginSize.toString() + 'px';
+
+        this.style.marginLeft = marginSizeString;
+        this.style.marginRight = marginSizeString;
+      }
+
+    });
+
+  })();
+  </script>
+</dom-module>

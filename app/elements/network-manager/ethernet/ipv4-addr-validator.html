@@ -1,0 +1,77 @@
+<link rel="import" href="../../../bower_components/iron-validator-behavior/iron-validator-behavior.html">
+
+<dom-module id="ipv4-addr-validator">
+  <script>
+    (function() {
+      'use strict';
+
+      Polymer({
+
+        is: 'ipv4-addr-validator',
+
+        properties: {
+          validatorName: {
+            type: String
+          },
+
+          ipRegex: {
+            type: Object,
+            value: function() {
+              return new RegExp(/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/);
+            }
+          },
+
+          isForDns: {
+            type: Boolean,
+            value: false,
+            notify: true
+          }
+        },
+
+        behaviors: [Polymer.IronValidatorBehavior],
+
+        /**
+         * Override
+         * Performs validation of the supplied IPv4 address
+         * @param values
+         * @returns {boolean}
+         */
+        validate: function(ipv4Address){
+
+          //It's OK to be empty, means we are not configured or not assigned
+          if(!ipv4Address || (ipv4Address === '')){
+            return true;
+          }
+
+          //Can't be the broadcast
+          if(ipv4Address === '255.255.255.255'){
+            return false;
+          }
+
+          //Can't be localhost unless we're validating DNS
+          if(!this.isForDns){
+            if(ipv4Address === '127.0.0.1'){
+              return false;
+            }
+          }
+
+          //Can't be zero
+          if(ipv4Address === '0.0.0.0') {
+            return false;
+          }
+
+          //Must be an ipv4 format
+          if(ipv4Address.match(this.ipRegex)) {
+            return true;
+          }
+
+          //Default to false
+          return false;
+        }
+
+      });
+
+    }());
+  </script>
+
+</dom-module>

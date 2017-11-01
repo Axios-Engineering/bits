@@ -1,0 +1,83 @@
+<link rel="import" href="../../../bower_components/iron-validator-behavior/iron-validator-behavior.html">
+
+<dom-module id="passphrase-validator">
+
+  <script src="/elements/network-manager/scripts/bundle.js"></script>
+  <script>
+    (function() {
+      'use strict';
+
+      const TAG = 'NETWORK_MGR:WIFI:VALIDATOR:PASSPHRASE';
+      const debug = window.Bits.utils.getDebugger(TAG);
+
+      //Minimum 8 Chars
+      const PASSPHRASE_REGEX = new RegExp(/^[a-zA-Z0-9~`!@#$%\^&\*\(\)-=+;\[\]{};:\'\"<>,\./\?\\\|]{8,63}$/);
+      const EMPTY_REGEX = new RegExp(/^[a-zA-Z0-9~`!@#$%\^&\*\(\)-=+;\[\]{};:\'\"<>,\./\?\\\|]{0,63}$/);
+
+      Polymer({
+
+        is: 'passphrase-validator',
+
+        properties: {
+          validatorName: {
+            type: String
+          },
+
+          passphraseRegex: {
+            type: Object,
+            value: function() {
+              //From Wikipedia: 256bit key is comprised of 64hex digits or 8-63 printable ASCII chars
+              //We only allow the ASCII chars for now
+              return PASSPHRASE_REGEX;
+            }
+          },
+
+          allowEmpty: {
+            type: Boolean,
+            notify: true,
+            value: false,
+            observer: '_observeAllowEmpty'
+          },
+
+          isForDns: {
+            type: Boolean,
+            value: false,
+            notify: true
+          }
+        },
+
+        behaviors: [Polymer.IronValidatorBehavior],
+
+        attached: function () {
+          debug('attached');
+        },
+
+        _observeAllowEmpty: function (newVal, oldVal) {
+          debug('_observeAllowEmpty', newVal, oldVal);
+          if(newVal) {
+            this.set('passphraseRegex', EMPTY_REGEX);
+          }
+        },
+
+        /**
+         * Override
+         * Performs validation of the supplied IPv4 address
+         * @param values
+         * @returns {boolean}
+         */
+        validate: function (passphrase) {
+          debug('validate, isAllowEmpty', this.allowEmpty, this.passphraseRegex);
+
+          if(this.allowEmpty) {
+            return passphrase === null || passphrase === undefined || this.passphraseRegex.test(passphrase);
+          } else {
+            return this.passphraseRegex.test(passphrase);
+          }
+        }
+
+      });
+
+    }());
+  </script>
+
+</dom-module>

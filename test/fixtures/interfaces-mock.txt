@@ -1,0 +1,24 @@
+auto lo
+iface lo inet loopback
+
+auto iface eth0.1
+iface eth0.1 inet dhcp
+    vlan-raw-device eth0
+
+iface eth0.2 inet static
+    vlan-raw-device eth0
+    address 10.10.10.1
+    netmask 255.255.255.0
+
+iface eth0.3 inet static
+    vlan-raw-device eth0
+    address 10.10.10.1
+    netmask 255.255.255.0
+    dns-nameservers 8.8.8.8
+    gateway 10.10.10.100
+
+iface eth1 inet static
+    address 192.168.10.2
+    netmask 255.255.254.0
+    dns-nameservers 8.8.8.8 8.8.4.4
+    gateway 192.168.10.1
