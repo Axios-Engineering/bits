@@ -34,6 +34,10 @@ limitations under the License.
           type: Boolean,
           computed: '_computeStaticSharedOpened(item.*)'
         },
+        isShared: {
+          type: Boolean,
+          computed: '_computeIsShared(item.*)'
+        },
         cidr: {
           type: String,
           observer: '_observeCidr'
@@ -43,6 +47,11 @@ limitations under the License.
       _computeStaticSharedOpened: function() {
         const mode = this._getIpv4MethodFromItem();
         return (mode && (mode === 'manual' || mode === 'shared'));
+      },
+
+      _computeIsShared: function() {
+        const mode = this._getIpv4MethodFromItem();
+        return (mode && mode === 'shared');
       },
 
       observers: [

@@ -117,6 +117,7 @@ limitations under the License.
           value="{{item.ipv4.gateway}}"
           disabled="[[disabled]]"
           readonly="[[readonly]]"
+          hidden="[[isShared]]"
           placeholder="Gateway">
         </network-manager-ipv4-input>
         <template is="dom-repeat" items="[[item.ipv4.dns]]" as="dns">
@@ -125,6 +126,7 @@ limitations under the License.
               value="{{dns}}"
               disabled="[[disabled]]"
               readonly="[[readonly]]"
+              hidden="[[isShared]]"
               placeholder="[[_calculateDnsLabel(index)]]"
               is-for-dns>
             </network-manager-ipv4-input>
