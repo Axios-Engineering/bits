@@ -18,6 +18,7 @@ limitations under the License.
 <link rel="import" href="../network-manager-behaviors/network-manager-invalid-behavior.html">
 <!-- bplint-disable no-unused-import -->
 <link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../network-manager-connections/network-manager-connections.html">
 
 <dom-module id="network-manager-bridge-connection-input">
   <template>
@@ -27,11 +28,14 @@ limitations under the License.
       }
     </style>
 
+    <network-manager-connections
+      type="bridge"
+      filtered-items="{{connections}}">
+    </network-manager-connections>
+
     <vaadin-combo-box
       tabindex="0"
       items="[[items]]"
-      item-label-path="label"
-      item-value-path="value"
       value="{{value}}"
       label="[[placeholder]]"
       error-message="[[errorMessage]]"
@@ -72,17 +76,17 @@ limitations under the License.
           },
           items: {
             type: Array,
-            value: () => {
-              return [{
-                label: 'Bridge Name',
-                value: 'some-id'
-              }];
-            }
+            computed: '_computeItems(connections.*)'
           },
           value: {
             type: String,
             notify: true
           }
+        },
+
+        _computeItems: function() {
+          if(!this.connections) return [];
+          return this.connections.map(item => item.connection.id).sort();
         }
 
       });
