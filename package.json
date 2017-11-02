@@ -7,7 +7,7 @@
     "test": "mocha --timeout 5000 test/*.js test/**/*.js",
     "bower:install": "bower install",
     "bower:install:prod": "bower install --prod",
-    "build": "yarn && ls && ls node_modules && npm run bower:install && npm run lint && npm run test"
+    "build": "yarn && npm run bower:install && npm run lint && npm run test"
   },
   "devDependencies": {
     "bower": "^1.8.2",
