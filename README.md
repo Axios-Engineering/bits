@@ -1,5 +1,6 @@
 Network Manager
 ================
+
 About Network Manager:
 -----------------------
 This module allows configuration of the Bits system's ethernet and wifi networking. The module
