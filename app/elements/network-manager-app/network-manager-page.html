@@ -19,7 +19,6 @@ limitations under the License.
 <!-- bplint-disable no-unused-import -->
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <!-- bplint-enable no-unused-import -->
-<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../base-shared-styles/base-shared-styles.html">
 <link rel="import" href="../base-layout/base-lazy-content/base-lazy-content.html">
 
@@ -53,8 +52,6 @@ limitations under the License.
       page="[[page]]"
       current-element="{{element}}">
     </base-lazy-content>
-
-    <paper-toast id="snackbar"></paper-toast>
 
   </template>
   <script>
@@ -131,7 +128,6 @@ limitations under the License.
         },
 
         listeners: {
-          'network-manager-show-message': '_onNetworkManagerShowMessage',
           'network-manager-show-list-page': '_onNetworkManagerShowListPage',
           'network-manager-show-detail-page': '_onNetworkManagerShowDetailPage'
         },
@@ -144,22 +140,9 @@ limitations under the License.
           this._pushState(detail);
         },
 
-        _onNetworkManagerShowMessage: function(event, detail) {
-          this.showSnackbar(detail);
-        },
-
         _pushState: function(path='') {
           window.history.pushState({}, null, `/network-manager/${this.routePath}/${path}`);
           window.dispatchEvent(new CustomEvent('location-changed'));
-        },
-
-        showSnackbar: function(message) {
-          if ('string' === typeof(message) && message.length > 0) {
-            this.$.snackbar.set('text', message);
-            this.$.snackbar.open();
-          } else {
-            console.warn('Message must be a non-empty string:', message);
-          }
         },
 
       });

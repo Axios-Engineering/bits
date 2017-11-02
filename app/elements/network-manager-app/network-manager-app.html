@@ -17,6 +17,7 @@ limitations under the License.
 <!-- bplint-disable no-unused-import -->
 <link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
 <!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../base-layout/base-drawer-layout/base-drawer-layout.html">
 <link rel="import" href="../base-shared-styles/base-shared-styles.html">
 
@@ -39,6 +40,8 @@ limitations under the License.
       page-name="{{currentPage}}"
       default-page-name="dashboard">
     </base-drawer-layout>
+
+    <paper-toast id="snackbar"></paper-toast>
 
   </template>
   <script>
@@ -100,6 +103,23 @@ limitations under the License.
                 visible: false
               }];
             }
+          }
+        },
+
+        listeners: {
+          'network-manager-show-message': '_onNetworkManagerShowMessage',
+        },
+
+        _onNetworkManagerShowMessage: function(event, detail) {
+          this.showSnackbar(detail);
+        },
+
+        showSnackbar: function(message) {
+          if ('string' === typeof(message) && message.length > 0) {
+            this.$.snackbar.set('text', message);
+            this.$.snackbar.open();
+          } else {
+            console.warn('Message must be a non-empty string:', message);
           }
         },
 

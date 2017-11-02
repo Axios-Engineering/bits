@@ -167,7 +167,7 @@ limitations under the License.
           items: {
             type: Array,
             value: Array.from([]),
-            computed: '_computeItems(connections.*, devices.*)'
+            readOnly: true
           },
           stateList: { // active state toggles back to false before connection becomes active, this in-memory list is for UX only
             type: Array,
@@ -175,7 +175,7 @@ limitations under the License.
           }
         },
 
-        _computeItems: function() {
+        __setItems: function() {
           if(this.debug) clearTimeout(this.debug);
           this.debug = setTimeout(() => {
             console.groupCollapsed('Devices');
@@ -187,47 +187,59 @@ limitations under the License.
             console.groupEnd();
           }, 200);
 
-          if(!Array.isArray(this.connections)) return [];
+          let items = [];
 
-          const supported = this.$.connections.getTypes();
-          const supportedKeys = Object.keys(supported);
-          const supportedVals = supportedKeys.map(key => supported[key]);
+          if(Array.isArray(this.connections)) {
+            const supported = this.$.connections.getTypes();
+            const supportedKeys = Object.keys(supported);
+            const supportedVals = supportedKeys.map(key => supported[key]);
 
-          let appliedConnections = [];
-          if(Array.isArray(this.devices)) {
-            appliedConnections = this.devices.filter(device => device.AppliedConnection.length > 0).map(device => device.AppliedConnection[0]);
-          }
-
-          let items = this.connections.filter(item => supportedVals.includes(item.connection.type))
-            .map(item => Object.assign(item, {active: appliedConnections.some(appliedConnection => appliedConnection.connection.uuid === item.connection.uuid)}));
-          items.sort(sortByActiveAndConnectionId);
-
-
-          return items.map(item => {
-            const routePath = supportedKeys.find(key => supported[key] === item.connection.type).toLowerCase();
-            const state = this.stateList.find(state => state.id === item.id);
-
-            if(state) {
-              if(state.active === item.active) {
-                this._removeFromStateList(state.id);
-              }
-              else {
-                item.active = !!state.active;
-              }
+            let appliedConnections = [];
+            if(Array.isArray(this.devices)) {
+              appliedConnections = this.devices.filter(device => device.AppliedConnection.length > 0).map(device => device.AppliedConnection[0]);
             }
 
-            return {
-              id: item.id,
-              name: item.connection.id,
-              uuid: item.connection.uuid,
-              type: item.connection.type,
-              device: item.connection['interface-name'],
-              routePath: routePath,
-              active: item.active,
-              timestamp: item.connection.timestamp
-            };
-          });
+            items = this.connections.filter(item => supportedVals.includes(item.connection.type))
+              .map(item => Object.assign(item, {active: appliedConnections.some(appliedConnection => appliedConnection.connection.uuid === item.connection.uuid)}));
+            items.sort(sortByActiveAndConnectionId);
+
+
+            items = items.map(item => {
+              const routePath = supportedKeys.find(key => supported[key] === item.connection.type).toLowerCase();
+              const state = this.stateList.find(state => state.id === item.id);
+
+              if(state) {
+                if(state.active === item.active) {
+                  this._removeFromStateList(state.id);
+                }
+                else {
+                  item.active = !!state.active;
+                }
+              }
+
+              return {
+                id: item.id,
+                name: item.connection.id,
+                uuid: item.connection.uuid,
+                type: item.connection.type,
+                device: item.connection['interface-name'],
+                routePath: routePath,
+                active: item.active,
+                timestamp: item.connection.timestamp
+              };
+            });
+          }
+
+          this._setItems(items);
         },
+
+        _observeConnectionsAndDevices: function() {
+          this.__setItems();
+        },
+
+        observers: [
+          '_observeConnectionsAndDevices(connections.*, devices.*)'
+        ],
 
         _onTapDetail: function(event, detail) {
           const item = event.model.item;
@@ -273,13 +285,12 @@ limitations under the License.
         },
 
         _catchActivationToggle: function(err, obj) {
-          console.warn(err);
           this._removeFromStateList(obj.id);
           const index = this.items.findIndex(item => item.id === obj.id);
-
           if(index !== undefined) {
-            this.set(`items.${index}.active`, obj.active);
+            this.__setItems();
           }
+          this.fire('network-manager-show-message', `Error: ${err.message}`);
         }
 
       });
