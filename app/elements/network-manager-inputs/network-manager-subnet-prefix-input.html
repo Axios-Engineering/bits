@@ -82,7 +82,7 @@ limitations under the License.
           value: {
             type: Number,
             notify: true,
-            observer: '_observeValue'
+            observer: '_observeSubnetValue'
           },
           displayValue: {
             type: String,
@@ -90,7 +90,7 @@ limitations under the License.
           }
         },
 
-        _observeValue: function(value) {
+        _observeSubnetValue: function(value) {
           if(!value) return;
           const displayValue = this.subnetMaskFromPrefixLength(value);
           if(displayValue !== this.displayValue) this.set('displayValue', displayValue);

@@ -287,16 +287,10 @@ limitations under the License.
         _sanitizeItem: function() {
           if(Array.isArray(this.item.ipv4.dns)) {
             this.item.ipv4.dns = this.item.ipv4.dns.filter(item => !!item);
-            // if(this.item.ipv4.dns.length === 0) {
-            //   delete this.item.ipv4.dns;
-            // }
           }
 
           if(Array.isArray(this.item.ipv4['address-data'])) {
             this.item.ipv4['address-data'] = this.item.ipv4['address-data'].filter(item => !!Object.keys(item).length);
-            // if(this.item.ipv4['address-data'].length === 0) {
-            //   delete this.item.ipv4['address-data'];
-            // }
           }
 
           if(this.item.connection.hasOwnProperty('autoconnect-priority') && typeof this.item.connection['autoconnect-priority'] === "string") {
