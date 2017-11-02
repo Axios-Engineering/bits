@@ -242,11 +242,11 @@ limitations under the License.
 
             if(item.active) {
               this.$.connections.deactivate(connection)
-              .catch(err => console.warn(err));
+              .catch(err => this._catchActivationToggle(err, item));
             }
             else {
               this.$.connections.activate(connection)
-              .catch(err => console.warn(err));
+              .catch(err => this._catchActivationToggle(err, item));
             }
           }
           else {
@@ -269,6 +269,16 @@ limitations under the License.
           const index = this.stateList.findIndex(item => item.id === id);
           if(index !== -1) {
             this.splice('stateList', index, 1);
+          }
+        },
+
+        _catchActivationToggle: function(err, obj) {
+          console.warn(err);
+          this._removeFromStateList(obj.id);
+          const index = this.items.findIndex(item => item.id === obj.id);
+
+          if(index !== undefined) {
+            this.set(`items.${index}.active`, item.active);
           }
         }
 
