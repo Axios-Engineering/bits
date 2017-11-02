@@ -1,0 +1,142 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="./network-manager-ipaddr-behavior.html">
+<!-- bplint-disable no-unused-import -->
+
+<script>
+  ((global) => {
+    'use strict';
+
+    global.Bits = global.Bits || {};
+
+    global.Bits.NetworkManagerStaticSharedBehaviorImpl = {
+
+      properties: {
+        invalidStaticSharedList: {
+          type: Object,
+          value: Object.assign({})
+        },
+        staticSharedOpened: {
+          type: Boolean,
+          computed: '_computeStaticSharedOpened(item.*)'
+        },
+        cidr: {
+          type: String,
+          observer: '_observeCidr'
+        }
+      },
+
+      _computeStaticSharedOpened: function() {
+        const mode = this._getIpv4MethodFromItem();
+        return (mode && (mode === 'manual' || mode === 'shared'));
+      },
+
+      observers: [
+        '_observeItemInvalid(invalidStaticSharedList.*)',
+        '_observeItemInvalid(staticSharedOpened)',
+        '_observeItemData(item.*)',
+      ],
+
+      _observeCidr: function(cidr) {
+        if(this.isValidCidrV4(cidr)) {
+          const parsedCidr = this.parseCidr(cidr);
+
+          this.splice('item.ipv4.address-data', 0, 1, {address: parsedCidr.address, prefix: parsedCidr.prefixLength});
+        }
+      },
+
+      _observeItemData: function() {
+        if(!this.item) return;
+
+        if(Object.keys(this.item).length === 0) {
+          this._resetItem();
+        }
+
+        if(!this.itemHasAddressData()) {
+          this.set('item.ipv4.address-data', [{}]);
+        }
+
+        if(!this.itemHasDnsData()) {
+          this.set('item.ipv4.dns', [null, undefined]); // strange polymer bug if these are initialized at the same value
+        }
+      },
+
+      _observeItemInvalid: function() {
+        const jobName = 'NetworkManagerStaticSharedBehavior#observe-item-invalid';
+        this.cancelDebouncer(jobName);
+        this.debounce(jobName, () => this._calculateValidity(), 200);
+      },
+
+      _calculateValidity: function() {},
+
+      _calculateDisabledNetworkInput: function(disabled, cidr) {
+        return disabled || this.isValidCidrV4(cidr);
+      },
+
+      _calculateDnsLabel: function(index) {
+        return `DNS ${index + 1}`;
+      },
+
+      _getIpv4MethodFromItem: function() {
+        let method = undefined;
+
+        if(this.item && this.item.ipv4 && this.item.ipv4.method) {
+          method = this.item.ipv4.method;
+        }
+
+        return method;
+      },
+
+      _assertIndex: function(...args) {
+        const index = args.shift();
+        return args.some(val => index === val);
+      },
+
+      _resetItem: function() {},
+
+      itemHasAddressData: function() {
+        return (
+          this.item.ipv4 &&
+          Array.isArray(this.item.ipv4['address-data']) &&
+          this.item.ipv4['address-data'].length > 0
+        );
+      },
+
+      itemHasEmptyAddressData: function() {
+        return this.itemHasAddressData() && !this.item.ipv4['address-data'].some(data => !!(data.address && data.prefix));
+      },
+
+      itemHasDnsData: function() {
+        return (
+          this.item.ipv4 &&
+          Array.isArray(this.item.ipv4.dns) &&
+          this.item.ipv4.dns.length > 1
+        );
+      },
+
+      itemHasEmptyDnsData: function() {
+        return this.itemHasDnsData() && this.item.ipv4.dns.some(dnsVal => (dnsVal === null || dnsVal === undefined));
+      }
+
+    };
+
+    global.Bits.NetworkManagerStaticSharedBehavior = [
+      global.Bits.NetworkManagerIpaddrBehavior,
+      global.Bits.NetworkManagerStaticSharedBehaviorImpl
+    ];
+  })(this);
+</script>

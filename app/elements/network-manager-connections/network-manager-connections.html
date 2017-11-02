@@ -1,0 +1,89 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../base-crud/base-crud-behavior.html">
+<!-- bplint-disable no-unused-import -->
+
+<script>
+((global) => {
+  'use strict';
+
+  class ConnectionsMessenger {
+    static get TAG() {
+      return 'networkManager#Connections';
+    }
+
+    static get REQUEST() {
+      return {
+        ACTIVATE: `${ConnectionsMessenger.TAG} activate`,
+        DEACTIVATE: `${ConnectionsMessenger.TAG} deactivate`
+      };
+    }
+  }
+
+  const CONNECTION_TYPES = {
+    ETHERNET: '802-3-ethernet',
+    BRIDGE: 'bridge',
+    WIFI: '802-11-wireless',
+    CELLULAR: 'cellular',
+    VPN: 'vpn'
+  };
+
+  Polymer({
+    is: 'network-manager-connections',
+
+    behaviors: [
+      global.Bits.BaseCrudBehavior
+    ],
+
+    properties: {
+      tag: {
+        value: ConnectionsMessenger.TAG
+      },
+      type: {
+        type: String
+      },
+      filteredItems: {
+        type: Array,
+        computed: '_computeFilteredItems(type, items.*)',
+        notify: true
+      }
+    },
+
+    _computeFilteredItems: function(type) {
+      type = String(type).toUpperCase();
+      if(type === 'ALL') return Array.from(this.items);
+      const connectionType = CONNECTION_TYPES[type];
+      if(!Array.isArray(this.items) || !connectionType) return [];
+      return this.items.filter(item => (item.connection && item.connection.type === connectionType));
+    },
+
+    getTypes: function() {
+      return Object.assign({}, CONNECTION_TYPES);
+    },
+
+    activate: function(item) {
+      return this.sendRequest(ConnectionsMessenger.REQUEST.ACTIVATE, item);
+    },
+
+    deactivate: function(item) {
+      return this.sendRequest(ConnectionsMessenger.REQUEST.DEACTIVATE, item);
+    }
+
+  });
+})(this);
+</script>

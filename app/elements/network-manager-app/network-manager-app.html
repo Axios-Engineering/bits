@@ -1,0 +1,113 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../base-layout/base-drawer-layout/base-drawer-layout.html">
+<link rel="import" href="../base-shared-styles/base-shared-styles.html">
+
+<dom-module id="network-manager-app">
+  <template>
+    <style  include="base-shared-styles">
+      :host {
+        display: block;
+        position: relative;
+        height: 100%;
+      }
+    </style>
+
+    <base-drawer-layout
+      id="layout"
+      m-name="network-manager"
+      m-icon="icons:swap-vert"
+      m-display-name="Network Manager"
+      pages="[[pages]]"
+      page-name="{{currentPage}}"
+      default-page-name="dashboard">
+    </base-drawer-layout>
+
+  </template>
+  <script>
+    (() => {
+      'use strict';
+
+      Polymer({
+        is: 'network-manager-app',
+
+        behaviors: [Polymer.IronResizableBehavior],
+
+        properties: {
+          pages: {
+            type: Array,
+            value: () => {
+              return [{
+                name: 'dashboard',
+                element: 'network-manager-dashboard',
+                import: '/elements/network-manager-dashboard/network-manager-dashboard.html',
+                displayName: 'Dashboard',
+                icon: 'icons:perm-device-information'
+              },{
+                name: 'devices',
+                element: 'network-manager-devices-content',
+                import: '/elements/network-manager-devices/network-manager-devices-content.html',
+                displayName: 'Devices',
+                icon: 'device:nfc'
+              },{
+                name: 'ethernet',
+                element: 'network-manager-ethernet-content',
+                import: '/elements/network-manager-ethernet/network-manager-ethernet-content.html',
+                displayName: 'Ethernet',
+                icon: 'icons:settings-ethernet'
+              },{
+                name: 'bridge',
+                element: 'network-manager-bridge-content',
+                import: '/elements/network-manager-bridge/network-manager-bridge-content.html',
+                displayName: 'Bridge',
+                icon: 'hardware:device-hub'
+              },{
+                name: 'wifi',
+                element: 'network-manager-wifi-content',
+                import: '/elements/network-manager-wifi/network-manager-wifi-content.html',
+                displayName: 'Wi-Fi',
+                icon: 'notification:wifi'
+              },{
+                name: 'cellular',
+                element: 'network-manager-cellular-content',
+                import: '/elements/network-manager-cellular/network-manager-cellular-content.html',
+                displayName: 'Cellular',
+                icon: 'hardware:sim-card',
+                visible: false
+              },{
+                name: 'vpn',
+                element: 'network-manager-vpn-content',
+                import: '/elements/network-manager-vpn/network-manager-vpn-content.html',
+                displayName: 'VPN',
+                icon: 'notification:vpn-lock',
+                visible: false
+              }];
+            }
+          }
+        },
+
+        toggleSidenav: function() {
+          this.$.layout.toggleSidenav();
+        }
+
+      });
+    })();
+  </script>
+</dom-module>

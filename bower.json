@@ -1,0 +1,7 @@
+{
+  "name": "bits-network-manager",
+  "private": true,
+  "dependencies": {
+    "ipaddr.js": "ipaddr#^1.5.2"
+  }
+}

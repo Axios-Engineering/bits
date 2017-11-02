@@ -1,0 +1,320 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<!-- bplint-enable no-unused-import -->
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+<link rel="import" href="../base-layout/base-header-layout/base-header-layout.html">
+<link rel="import" href="../network-manager-app/network-manager-shared-styles.html">
+<link rel="import" href="../network-manager-connections/network-manager-connections.html">
+
+<dom-module id="network-manager-item">
+  <template>
+    <style include="network-manager-shared-styles">
+      :host {
+        display: block;
+        height: 100%;
+      }
+
+      .show-is-new-true {
+        display: block !important;
+      }
+
+      .hide-is-new-true {
+        display: none !important;
+      }
+    </style>
+
+    <network-manager-connections
+      id="connections"
+      no-items>
+    </network-manager-connections>
+
+    <base-header-layout x-title="[[title]]" x-back-href="[[xBackHref]]">
+      <div class="header-toolbar">
+        <div class$="hide-below-600 show-is-new-[[isNew]]">
+          <paper-button
+            class="primary-btn-light"
+            hidden="[[!readonly]]"
+            on-tap="_onTapToggleReadonly">
+            Edit
+          </paper-button>
+          <paper-button
+            class="primary-btn-light"
+            hidden="[[readonly]]"
+            disabled="[[invalid]]"
+            on-tap="_onTapSaveItem">
+            Save
+          </paper-button>
+          <paper-button
+            class="primary-btn-light"
+            hidden="[[_calculateSecondaryActionIsHidden(readonly, isNew)]]"
+            on-tap="_onTapCancelItem">
+            Cancel
+          </paper-button>
+          <paper-button
+            class="primary-btn-light"
+            hidden="[[_calculateSecondaryActionIsHidden(readonly, isNew)]]"
+            on-tap="_onTapDeleteItem">
+            Delete
+          </paper-button>
+        </div>
+        <paper-menu-button
+          class$="show-above-600
+          hide-is-new-[[isNew]]"
+          close-on-activate>
+          <paper-icon-button
+            icon="icons:more-vert"
+            class="dropdown-trigger">
+          </paper-icon-button>
+          <paper-menu class="dropdown-content">
+            <paper-item
+              disabled="[[!readonly]]"
+              on-tap="_onTapToggleReadonly">
+              Edit
+            </paper-item>
+            <paper-item
+              disabled="[[_calculateAnyTrue(readonly, invalid)]]"
+              on-tap="_onTapSaveItem">
+              Save
+            </paper-item>
+            <paper-item
+              disabled="[[_calculateSecondaryActionIsHidden(readonly, isNew)]]"
+              on-tap="_onTapCancelItem">
+              Cancel
+            </paper-item>
+            <paper-item
+              disabled="[[_calculateSecondaryActionIsHidden(readonly, isNew)]]"
+              on-tap="_onTapDeleteItem">
+              Delete
+            </paper-item>
+          </paper-menu>
+        </paper-menu-button>
+      </div>
+      <div class="content">
+        <content></content>
+      </div>
+    </base-header-layout>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      const DEFAULTS = {
+        TITLE: 'New Connection',
+        CREATE_SUCCESS: 'Connection successfully created.',
+        UPDATE_SUCCESS: 'Connection successfully saved.',
+        DELETE_SUCCESS: 'Connection successfully deleted.',
+        ITEM_NOT_FOUND: 'Item not found.'
+      };
+
+      Polymer({
+        is: 'network-manager-item',
+
+        behaviors: [Polymer.IronResizableBehavior],
+
+        properties: {
+          defaultTitle: {
+            type: String,
+            value: DEFAULTS.TITLE
+          },
+          readonly: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          invalid: {
+            type: Boolean,
+            value: true
+          },
+          isNew: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          item: {
+            notify: true,
+          },
+          itemId: {
+            type: String,
+            observer: '_observeItemId'
+          }
+        },
+
+        _observeDefaultTitle: function() {
+          this._debounceTitle();
+        },
+
+        _observeConfigName: function(name) {
+          this._debounceTitle(name);
+        },
+
+        _observeItemId: function(itemId) {
+          if(itemId) {
+            if(itemId !== 'create') {
+              this.set('readonly', true);
+              this.set('invalid', true);
+              this.set('isNew', false);
+              this.getItemById(itemId);
+            }
+            else {
+              this.set('readonly', false);
+              this.set('invalid', true);
+              this.set('isNew', true);
+              this.set('item', {});
+            }
+          }
+        },
+
+        observers: [
+          '_observeDefaultTitle(defaultTitle)',
+          '_observeConfigName(name)'
+        ],
+
+        listeners: {
+          'base-crud-item-updated': '_onBaseCrudItemUpdated',
+          'base-crud-item-deleted': '_onBaseCrudItemDeleted',
+        },
+
+        _onBaseCrudItemUpdated: function(event, detail) {
+          if(this._itemHasBeenUpdated(detail)) {
+            this.set('item', detail.items.shift());
+          }
+        },
+
+        _onBaseCrudItemDeleted: function(event, detail) {
+          if(this._itemHasBeenUpdated(detail)) {
+            this.fire('network-manager-show-list-page');
+            this.fire('network-manager-show-message', DEFAULTS.ITEM_NOT_FOUND);
+          }
+        },
+
+        _onTapSaveItem: function() {
+          if (!this.invalid) {
+            if(!!this.item.id) {
+              this.updateItem();
+            }
+            else {
+              this.createItem();
+            }
+          }
+        },
+
+        _onTapDeleteItem: function() {
+          this.deleteItem();
+        },
+
+        _onTapToggleReadonly: function() {
+          this.set('readonly', !this.readonly);
+        },
+
+        _onTapCancelItem: function() {
+          this._onTapToggleReadonly();
+          this.getItemById(this.item.id);
+        },
+
+        _calculateSecondaryActionIsHidden: function(readonly, isNew) {
+          return readonly || isNew;
+        },
+
+        _calculateAnyTrue: function(...args) {
+          return args.some(arg => !!arg);
+        },
+
+        _itemHasBeenUpdated: function(detail) {
+          return (this.$.connections.tag === detail.tag && detail.items[0].id === this.item.id);
+        },
+
+        _debounceTitle: function(name) {
+          this.debounce('networkManagerCreate#x-title-update', () => {
+            const title = name && name.length > 0 ? name : this.defaultTitle;
+            this.set('title', title);
+          }, 500);
+        },
+
+        _parseError: function(err) {
+          return `Error: ${err.message}`;
+        },
+
+        _sanitizeItem: function() {
+          if(Array.isArray(this.item.ipv4.dns)) {
+            this.item.ipv4.dns = this.item.ipv4.dns.filter(item => !!item);
+            if(this.item.ipv4.dns.length === 0) {
+              delete this.item.ipv4.dns;
+            }
+          }
+
+          if(Array.isArray(this.item.ipv4['address-data'])) {
+            this.item.ipv4['address-data'] = this.item.ipv4['address-data'].filter(item => !!Object.keys(item).length);
+            if(this.item.ipv4['address-data'].length === 0) {
+              delete this.item.ipv4['address-data'];
+            }
+          }
+        },
+
+        createItem: function() {
+          this._sanitizeItem();
+
+          console.groupCollapsed('Create');
+          console.log(this.item);
+          console.groupEnd();
+
+          return this.$.connections.create(this.item)
+          .then(item => this.fire('network-manager-show-detail-page', item.id))
+          .then(() => this.fire('network-manager-show-message', DEFAULTS.CREATE_SUCCESS))
+          .catch(err => this.fire('network-manager-show-message', this._parseError(err)));
+        },
+
+        updateItem: function() {
+          this._sanitizeItem();
+
+          console.groupCollapsed('Update');
+          console.log(this.item);
+          console.groupEnd();
+
+          return this.$.connections.update(this.item.id, this.item)
+          .then(() => this.fire('network-manager-show-message', DEFAULTS.UPDATE_SUCCESS))
+          .catch(err => this.fire('network-manager-show-message', this._parseError(err)));
+        },
+
+        deleteItem: function() {
+          return this.$.connections.delete(this.item.id)
+          .then(item => this.fire('network-manager-show-list-page'))
+          .then(() => this.fire('network-manager-show-message', DEFAULTS.DELETE_SUCCESS))
+          .catch(err => this.fire('network-manager-show-message', this._parseError(err)));
+        },
+
+        getItemById: function(id) {
+          this.$.connections.get(Number(id))
+          .then(item => this.set('item', item))
+          .catch(err => {
+            this.fire('network-manager-show-list-page');
+            this.fire('network-manager-show-message', DEFAULTS.ITEM_NOT_FOUND);
+          });
+        }
+
+     });
+
+    })(this);
+  </script>
+</dom-module>

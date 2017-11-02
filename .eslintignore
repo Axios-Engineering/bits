@@ -1,8 +1,8 @@
-# NPM
+# Node
 node_modules/
 
 # Bower
-app/bower_components/
+bower_components/
 
 # BITS
 support/

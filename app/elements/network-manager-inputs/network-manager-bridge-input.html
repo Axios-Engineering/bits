@@ -1,0 +1,209 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../network-manager-behaviors/network-manager-static-shared-behavior.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../base-layout/base-single-grid-item-wrapper/base-single-grid-item-wrapper.html">
+<link rel="import" href="../base-shared-styles/base-shared-styles.html">
+<link rel="import" href="./network-manager-name-input.html">
+<link rel="import" href="./network-manager-device-input.html">
+<link rel="import" href="./network-manager-priority-input.html">
+<link rel="import" href="./network-manager-autoconnect-input.html">
+<link rel="import" href="./network-manager-mode-input.html">
+<link rel="import" href="./network-manager-ipv4-input.html">
+<link rel="import" href="./network-manager-subnet-prefix-input.html">
+<link rel="import" href="./network-manager-cidrv4-input.html">
+
+<dom-module id="network-manager-bridge-input">
+  <template>
+    <style include="base-shared-styles">
+      :host {
+        display: block;
+      }
+
+      .push-down {
+        margin-top: 16px;
+      }
+
+      .push {
+        @apply --layout-flex;
+      }
+    </style>
+
+    <base-single-grid-item-wrapper
+      b-title="Bridge Configuration">
+      <network-manager-name-input
+        value="{{item.connection.id}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        invalid="{{invalidList.name}}"
+        required>
+      </network-manager-name-input>
+      <network-manager-name-input
+        value="{{item.bridge.interface-name}}"
+        placeholder="Interface Name"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        invalid="{{invalidList.name}}"
+        required>
+      </network-manager-name-input>
+      <network-manager-priority-input
+        value="{{item.connection.autoconnect-priority}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]">
+      </network-manager-priority-input>
+      <div class="line push-down">
+        <span class="push"></span>
+        <network-manager-autoconnect-input
+          value="{{item.connection.autoconnect}}"
+          disabled="[[disabled]]"
+          readonly="[[readonly]]">
+        </network-manager-autoconnect-input>
+      </div>
+      <network-manager-mode-input
+        mode-type="bridge"
+        value="{{item.ipv4.method}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        invalid="{{invalidList.mode}}"
+        required>
+      </network-manager-mode-input>
+    </base-single-grid-item-wrapper>
+
+    <iron-collapse opened="[[staticSharedOpened]]">
+      <base-single-grid-item-wrapper
+        b-title="Additional Configuration Settings"
+        class="push-down">
+        <network-manager-cidrv4-input
+          value="{{cidr}}"
+          disabled="[[disabled]]"
+          readonly="[[readonly]]">
+        </network-manager-cidrv4-input>
+        <template is="dom-repeat" items="[[item.ipv4.address-data]]" as="data">
+          <template is="dom-if" if="[[_assertIndex(index, 0)]]">
+            <network-manager-ipv4-input
+              value="{{data.address}}"
+              disabled="[[_calculateDisabledNetworkInput(disabled, cidr)]]"
+              readonly="[[readonly]]"
+              invalid="{{invalidStaticSharedList.address}}"
+              required>
+            </network-manager-ipv4-input>
+            <network-manager-subnet-prefix-input
+              value="{{data.prefix}}"
+              disabled="[[_calculateDisabledNetworkInput(disabled, cidr)]]"
+              readonly="[[readonly]]"
+              invalid="{{invalidStaticSharedList.subnet}}"
+              required>
+            </network-manager-subnet-prefix-input>
+          </template>
+        </template>
+        <network-manager-ipv4-input
+          value="{{item.ipv4.gateway}}"
+          disabled="[[disabled]]"
+          readonly="[[readonly]]"
+          placeholder="Gateway">
+        </network-manager-ipv4-input>
+        <template is="dom-repeat" items="[[item.ipv4.dns]]" as="dns">
+          <template is="dom-if" if="[[_assertIndex(index, 0, 1)]]">
+            <network-manager-ipv4-input
+              value="{{dns}}"
+              disabled="[[disabled]]"
+              readonly="[[readonly]]"
+              placeholder="[[_calculateDnsLabel(index)]]"
+              is-for-dns>
+            </network-manager-ipv4-input>
+          </template>
+        </template>
+      </base-single-grid-item-wrapper>
+    </iron-collapse>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      Polymer({
+        is: 'network-manager-bridge-input',
+
+        behaviors: [Bits.NetworkManagerStaticSharedBehavior],
+
+        properties: {
+          disabled: {
+            type: Boolean,
+            value: false
+          },
+          readonly: {
+            type: Boolean,
+            value: false
+          },
+          invalid: {
+            type: Boolean,
+            value: true,
+            notify: true
+          },
+          invalidList: {
+            type: Object,
+            value: Object.assign({})
+          },
+          item: {
+            type: Object,
+            value: Object.assign({}),
+            notify: true
+          }
+        },
+
+        observers: [
+          '_observeItemInvalid(invalidList.*)'
+        ],
+
+        _calculateValidity: function() {
+          let invalid = this._invalidListHasAnyInvalid(this.invalidList);
+          if(invalid === false) {
+            if(this.staticSharedOpened) {
+              invalid = this._invalidListHasAnyInvalid(this.invalidStaticSharedList);
+            }
+          }
+
+          this.set('invalid', invalid);
+        },
+
+        _invalidListHasAnyInvalid: function(list) {
+          if(!list) return true;
+
+          return Object.keys(list).some(key => list[key]);
+        },
+
+        _resetItem: function() {
+          this.set('item', Object.assign({}, {
+            connection: {autoconnect: false},
+            ipv4: {},
+            ipv6: {method: 'ignore'},
+            bridge: {'interface-name': ''}
+          }));
+        },
+
+        attached: function() {
+          window.bridge = this;
+        }
+
+      });
+
+    })(this);
+  </script>
+</dom-module>
