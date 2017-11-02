@@ -29,10 +29,10 @@ provided via the npm debug module and follow the same tag syntax.
 To debug server code on your dev host perform the following:
 
 1.  run bits-terminal
-2.  kill the node process
-3.  open a new terminal tab
-4.  cd into FrontEnd
-5.  `DEBUG=NETWORK_MGR:* npm run dev -- -- -v`
+1.  kill the node process
+1.  open a new terminal tab
+1.  cd into FrontEnd
+1.  `DEBUG=NETWORK_MGR:* npm run dev -- -- -v`
 
 Notice the debug tag syntax where you can replace the wildcard `*` with any classe's tag name.
 
