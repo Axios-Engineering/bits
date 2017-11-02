@@ -178,6 +178,10 @@ limitations under the License.
           itemId: {
             type: String,
             observer: '_observeItemId'
+          },
+          deletedState: {
+            type: Boolean,
+            value: false
           }
         },
 
@@ -224,8 +228,12 @@ limitations under the License.
 
         _onBaseCrudItemDeleted: function(event, detail) {
           if(this._itemHasBeenUpdated(detail)) {
-            this.fire('network-manager-show-list-page');
-            this.fire('network-manager-show-message', DEFAULTS.ITEM_NOT_FOUND);
+            this.async(() => {
+              if(this.deletedState === false) {
+                this.fire('network-manager-show-list-page');
+                this.fire('network-manager-show-message', DEFAULTS.ITEM_NOT_FOUND);
+              }
+            }, 250);
           }
         },
 
@@ -320,10 +328,13 @@ limitations under the License.
         },
 
         deleteItem: function() {
+          this.set('deletedState', true);
+
           return this.$.connections.delete(this.item.id)
           .then(item => this.fire('network-manager-show-list-page'))
           .then(() => this.fire('network-manager-show-message', DEFAULTS.DELETE_SUCCESS))
-          .catch(err => this.fire('network-manager-show-message', this._parseError(err)));
+          .catch(err => this.fire('network-manager-show-message', this._parseError(err)))
+          .then(() => this.set('deletedState', false));
         },
 
         getItemById: function(id) {
