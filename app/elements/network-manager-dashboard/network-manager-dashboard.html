@@ -278,7 +278,7 @@ limitations under the License.
           const index = this.items.findIndex(item => item.id === obj.id);
 
           if(index !== undefined) {
-            this.set(`items.${index}.active`, item.active);
+            this.set(`items.${index}.active`, obj.active);
           }
         }
 
