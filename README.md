@@ -7,6 +7,8 @@
 <!-- /MarkdownTOC -->
 
 ## Building the module
+
 ``` bash
+npm install -g bower
 npm run build
 ```
