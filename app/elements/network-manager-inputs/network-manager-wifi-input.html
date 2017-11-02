@@ -1,0 +1,293 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../network-manager-behaviors/network-manager-static-shared-behavior.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../base-layout/base-single-grid-item-wrapper/base-single-grid-item-wrapper.html">
+<link rel="import" href="../base-shared-styles/base-shared-styles.html">
+<link rel="import" href="./network-manager-name-input.html">
+<link rel="import" href="./network-manager-device-input.html">
+<link rel="import" href="./network-manager-priority-input.html">
+<link rel="import" href="./network-manager-autoconnect-input.html">
+<link rel="import" href="./network-manager-mode-input.html">
+<link rel="import" href="./network-manager-ipv4-input.html">
+<link rel="import" href="./network-manager-subnet-prefix-input.html">
+<link rel="import" href="./network-manager-cidrv4-input.html">
+<link rel="import" href="./network-manager-ssid-input.html">
+<link rel="import" href="./network-manager-password-input.html">
+<link rel="import" href="./network-manager-wifi-band-input.html">
+<link rel="import" href="./network-manager-wifi-channel-input.html">
+
+<dom-module id="network-manager-wifi-input">
+  <template>
+    <style include="base-shared-styles">
+      :host {
+        display: block;
+      }
+
+      .push-down {
+        margin-top: 16px;
+      }
+
+      .push {
+        @apply --layout-flex;
+      }
+    </style>
+
+    <base-single-grid-item-wrapper
+      b-title="Wi-Fi Configuration">
+      <network-manager-name-input
+        value="{{item.connection.id}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        invalid="{{invalidList.name}}"
+        required>
+      </network-manager-name-input>
+      <network-manager-device-input
+        value="{{item.connection.interface-name}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        type="wifi"
+        connection-uid="[[item.uid]]">
+      </network-manager-device-input>
+      <network-manager-priority-input
+        value="{{item.connection.autoconnect-priority}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]">
+      </network-manager-priority-input>
+      <div class="line push-down">
+        <span class="push"></span>
+        <network-manager-autoconnect-input
+          value="{{item.connection.autoconnect}}"
+          disabled="[[disabled]]"
+          readonly="[[readonly]]">
+        </network-manager-autoconnect-input>
+      </div>
+      <network-manager-mode-input
+        mode-type="wifi"
+        value="{{item.802-11-wireless.mode}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        invalid="{{invalidList.mode}}"
+        required>
+      </network-manager-mode-input>
+    </base-single-grid-item-wrapper>
+
+    <base-single-grid-item-wrapper
+      b-title="Network Information"
+      class="push-down">
+      <network-manager-ssid-input
+        class="push-down"
+        value="{{item.802-11-wireless.ssid}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        invalid="{{invalidList.ssid}}"
+        interface-name="[[item.connection.interface-name]]"
+        ssid-is-hidden="[[_calculateSsidIsHidden(item.connection.interface-name, isHotspot)]]"
+        is-hotspot="[[isHotspot]]"
+        required>
+      </network-manager-ssid-input>
+      <network-manager-password-input
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        invalid="{{invalidList.password}}"
+        minlength="8"
+        min-uppercase="1"
+        error-message="[[_calculatePasswordErrorMessage(isHotspot)]]"
+        required=[[!isHotspot]]>
+      </network-manager-password-input>
+    </base-single-grid-item-wrapper>
+
+    <iron-collapse opened="[[isHotspot]]">
+      <base-single-grid-item-wrapper
+        b-title="Additional Configuration Settings"
+        class="push-down">
+        <network-manager-wifi-band-input
+          value="{{item.802-11-wireless.band}}"
+          disabled="[[disabled]]"
+          readonly="[[readonly]]">
+        </network-manager-wifi-band-input>
+        <network-manager-wifi-channel-input
+          value="{{item.802-11-wireless.channel}}"
+          band="{{item.802-11-wireless.band}}"
+          disabled="[[disabled]]"
+          readonly="[[readonly]]">
+        </network-manager-wifi-channel-input>
+        <network-manager-cidrv4-input
+          value="{{cidr}}"
+          disabled="[[disabled]]"
+          readonly="[[readonly]]">
+        </network-manager-cidrv4-input>
+        <template is="dom-repeat" items="[[item.ipv4.address-data]]" as="data">
+          <template is="dom-if" if="[[_assertIndex(index, 0)]]">
+            <network-manager-ipv4-input
+              value="{{data.address}}"
+              disabled="[[_calculateDisabledNetworkInput(disabled, cidr)]]"
+              readonly="[[readonly]]"
+              invalid="{{invalidStaticSharedList.address}}"
+              required>
+            </network-manager-ipv4-input>
+            <network-manager-subnet-prefix-input
+              value="{{data.prefix}}"
+              disabled="[[_calculateDisabledNetworkInput(disabled, cidr)]]"
+              readonly="[[readonly]]"
+              invalid="{{invalidStaticSharedList.subnet}}"
+              required>
+            </network-manager-subnet-prefix-input>
+          </template>
+        </template>
+        <network-manager-ipv4-input
+          value="{{item.ipv4.gateway}}"
+          disabled="[[disabled]]"
+          readonly="[[readonly]]"
+          placeholder="Gateway">
+        </network-manager-ipv4-input>
+        <template is="dom-repeat" items="[[item.ipv4.dns]]" as="dns">
+          <template is="dom-if" if="[[_assertIndex(index, 0, 1)]]">
+            <network-manager-ipv4-input
+              value="{{dns}}"
+              disabled="[[disabled]]"
+              readonly="[[readonly]]"
+              placeholder="[[_calculateDnsLabel(index)]]"
+              is-for-dns>
+            </network-manager-ipv4-input>
+          </template>
+        </template>
+      </base-single-grid-item-wrapper>
+    </iron-collapse>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      const MODE = {
+        CLIENT: 'infrastructure',
+        HOTSPOT: 'ap',
+      };
+
+      Polymer({
+        is: 'network-manager-wifi-input',
+
+        behaviors: [Bits.NetworkManagerStaticSharedBehavior],
+
+        properties: {
+          disabled: {
+            type: Boolean,
+            value: false
+          },
+          readonly: {
+            type: Boolean,
+            value: false
+          },
+          invalid: {
+            type: Boolean,
+            value: true,
+            notify: true
+          },
+          invalidList: {
+            type: Object,
+            value: Object.assign({})
+          },
+          invalidHotspotList: {
+            type: Object,
+            value: Object.assign({})
+          },
+          item: {
+            type: Object,
+            value: Object.assign({}),
+            notify: true
+          },
+          isHotspot: {
+            type: Boolean,
+            computed: '_computeIsHotspot(item.*)'
+          }
+        },
+
+        _computeIsHotspot: function() {
+          const mode = this._getWirelessMode();
+          return mode === MODE.HOTSPOT;
+        },
+
+        observers: [
+          '_observeItemInvalid(invalidList.*)',
+          '_observeItemInvalid(invalidHotspotList.*)',
+          '_observeItemInvalid(hotspotOpened)'
+        ],
+
+        _calculateValidity: function() {
+          if(!this.isHotspot && this.invalidList.password) this.invalidList.password = false;
+
+          let invalid = this._invalidListHasAnyInvalid(this.invalidList);
+          if(invalid === false) {
+            if(this.isHotspot) {
+              invalid = this._invalidListHasAnyInvalid(this.invalidHotspotList);
+              if(invalid === false && !this.itemHasEmptyAddressData()) {
+                invalid = this._invalidListHasAnyInvalid(this.invalidStaticSharedList);
+              }
+            }
+          }
+
+          this.set('invalid', invalid);
+        },
+
+        _calculateSsidIsHidden: function(interfaceName, isHotspot) {
+          return !interfaceName || isHotspot;
+        },
+
+        _calculatePasswordErrorMessage: function(isHotspot) {
+          if(isHotspot) return 'Please enter at least 8 characters and one uppercase letter.';
+          return 'Please enter a password.';
+        },
+
+        _invalidListHasAnyInvalid: function(list) {
+          if(!list) return true;
+
+          return Object.keys(list).some(key => list[key]);
+        },
+
+        _getWirelessMode: function() {
+          let mode = undefined;
+
+          if(this.item && this.item['802-11-wireless'] && this.item['802-11-wireless'].mode) {
+            mode = this.item['802-11-wireless'].mode;
+          }
+
+          return mode;
+        },
+
+        _resetItem: function() {
+          this.set('item', Object.assign({}, {
+            connection: {autoconnect: false, 'interface-name': ''},
+            ipv4: {},
+            ipv6: {method: 'ignore'},
+            '802-11-wireless': {},
+            '802-11-wireless-security': {}
+          }));
+        },
+
+        attached: function() {
+          window.wifi = this;
+        }
+
+      });
+
+    })(this);
+  </script>
+</dom-module>

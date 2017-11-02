@@ -1,0 +1,157 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<script>
+  ((global) => {
+    'use strict';
+
+    // https://developer.gnome.org/NetworkManager/stable/nm-dbus-types.html
+    const STATES = {
+      unknown: {
+        value: 0,
+        label: 'unknown',
+        description: 'The device state is unknown.'
+      },
+      unmanaged: {
+        value: 10,
+        label: 'unmanaged',
+        description: 'The device is recognized, but not managed by NetworkManager.'
+      },
+      unavailable: {
+        value: 20,
+        label: 'unavailable',
+        description: 'The device is managed by NetworkManager, but is not available for use.'
+      },
+      disconnected: {
+        value: 30,
+        label: 'disconnected',
+        description: 'The device can be activated, but is currently idle and not connected to a network.'
+      },
+      prepare: {
+        value: 40,
+        label: 'prepare',
+        description: 'The device is preparing the connection to the network.'
+      },
+      config: {
+        value: 50,
+        label: 'config',
+        description: 'The device is connecting to the requested network.'
+      },
+      need_auth: {
+        value: 60,
+        label: 'need auth',
+        description: 'The device requires more information to continue connecting to the requested network.'
+      },
+      ip_config: {
+        value: 70,
+        label: 'ip config',
+        description: 'The device is requesting IPv4 and/or IPv6 addresses and routing information from the network.'
+      },
+      ip_check: {
+        value: 80,
+        label: 'ip check',
+        description: 'The device is checking whether further action is required for the requested network connection.'
+      },
+      secondaries: {
+        value: 90,
+        label: 'secondaries',
+        description: 'The device is waiting for a secondary connection (like a VPN) which must activated before the device can be activated.'
+      },
+      activated: {
+        value: 100,
+        label: 'activated',
+        description: 'The device has a network connection, either local or global.'
+      },
+      deactivating: {
+        value: 110,
+        label: 'deactivating',
+        description: 'A disconnection from the current network connection was requested, and the device is cleaning up resources used for that connection.'
+      },
+      failed: {
+        value: 120,
+        label: 'failed',
+        description: 'The device failed to connect to the requested network and is cleaning up the connection request.'
+      }
+    };
+
+    class DeviceStates {
+      static get ALL() {
+        return STATES;
+      }
+
+      static get KEYS() {
+        return Object.keys(this.ALL);
+      }
+
+      static getByKey(key) {
+        return this.ALL[key];
+      }
+
+      static getAttrByKey(key, attr) {
+        const obj = this.getByKey(key);
+        if(!obj) return obj;
+        return obj[attr];
+      }
+
+      static getOneWhereAttrIsValue(attr, val) {
+        const key = this.KEYS.find(key => this.ALL[key][attr] === val);
+        if(!key) return key;
+        return this.getByKey(key);
+      }
+    }
+
+    global.Bits = global.Bits || {};
+
+    global.Bits.NetworkManagerDeviceStateBehaviorImpl = {
+      properties: {
+        states: {
+          type: Object,
+          readOnly: true,
+          value: Object.assign({}, DeviceStates.ALL)
+        },
+        keys: {
+          type: Array,
+          readOnly: true,
+          value: Array.from(DeviceStates.KEYS)
+        }
+      },
+
+      getStateByKey: function(key='') {
+        return DeviceStates.getByKey(key);
+      },
+
+      getStateValueByKey: function(key='') {
+        return DeviceStates.getAttrByKey(key, 'value');
+      },
+
+      getStateLabelByKey: function(key='') {
+        return DeviceStates.getAttrByKey(key, 'label');
+      },
+
+      getStateDescriptionByKey: function(key='') {
+        return DeviceStates.getAttrByKey(key, 'description');
+      },
+
+      getStateByValue: function(value) {
+        return DeviceStates.getOneWhereAttrIsValue('value', value);
+      },
+    };
+
+    global.Bits.NetworkManagerDeviceStateBehavior = [
+      global.Bits.NetworkManagerDeviceStateBehaviorImpl
+    ];
+
+  })(this);
+</script>

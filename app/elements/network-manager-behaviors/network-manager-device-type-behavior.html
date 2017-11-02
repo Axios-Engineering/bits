@@ -1,0 +1,207 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<script>
+  ((global) => {
+    'use strict';
+
+    // https://developer.gnome.org/NetworkManager/stable/nm-dbus-types.html
+    const TYPES = {
+      unknown: {
+        value: 0,
+        name: 'Unknown Device',
+        label: 'unknown'
+      },
+      ethernet: {
+        value: 1,
+        name: 'Wired Ethernet Device',
+        label: 'ethernet'
+      },
+      wifi: {
+        value: 2,
+        name: '802.11 Wi-Fi Device',
+        label: 'wifi'
+      },
+      unused1: {
+        value: 3,
+        name: 'Not Used',
+        label: 'unused'
+      },
+      unused2: {
+        value: 4,
+        name: 'Not Used',
+        label: 'unused'
+      },
+      bt: {
+        value: 5,
+        name: 'Bluetooth Device',
+        label: 'bluetooth'
+      },
+      olpc_mesh: {
+        value: 6,
+        name: 'OLPC XO Mesh Networking Device',
+        label: 'olpc mesh'
+      },
+      wimax: {
+        value: 7,
+        name: '802.16e Mobile WiMAX Broadband Device',
+        label: 'wimax'
+      },
+      modem: {
+        value: 8,
+        name: 'Modem',
+        label: 'modem'
+      },
+      infiniband: {
+        value: 9,
+        name: 'IP-Over-InfiniBand Device',
+        label: 'infiniband'
+      },
+      bond: {
+        value: 10,
+        name: 'Bond Master Interface',
+        label: 'bond'
+      },
+      vlan: {
+        value: 11,
+        name: '802.1Q VLAN Interface',
+        label: 'vlan'
+      },
+      adsl: {
+        value: 12,
+        name: 'ADSL Modem',
+        label: 'adsl'
+      },
+      bridge: {
+        value: 13,
+        name: 'Bridge Master Interface',
+        label: 'bridge'
+      },
+      generic: {
+        value: 14,
+        name: 'Generic Support',
+        label: 'generic'
+      },
+      team: {
+        value: 15,
+        name: 'Team Master Interface',
+        label: 'team'
+      },
+      tun: {
+        value: 16,
+        name: 'TUN or TAP Interface',
+        label: 'tun'
+      },
+      ip_tunnel: {
+        value: 17,
+        name: 'IP Tunnel Interface',
+        label: 'ip tunnel'
+      },
+      macvlan: {
+        value: 18,
+        name: 'MACVLAN Interface',
+        label: 'macvlan'
+      },
+      vxlan: {
+        value: 19,
+        name: 'VXLAN Interface',
+        label: 'vxlan'
+      },
+      veth: {
+        value: 20,
+        name: 'VETH Interface',
+        label: 'veth'
+      },
+      macsec: {
+        value: 21,
+        name: 'MACsec Interface',
+        label: 'macsec'
+      },
+      dummy: {
+        value: 22,
+        name: 'Dummy Interface',
+        label: 'dummy'
+      }
+    };
+
+    class DeviceTypes {
+      static get ALL() {
+        return TYPES;
+      }
+
+      static get KEYS() {
+        return Object.keys(this.ALL);
+      }
+
+      static getByKey(key) {
+        return this.ALL[key];
+      }
+
+      static getAttrByKey(key, attr) {
+        const obj = this.getByKey(key);
+        if(!obj) return obj;
+        return obj[attr];
+      }
+
+      static getOneWhereAttrIsValue(attr, val) {
+        const key = this.KEYS.find(key => this.ALL[key][attr] === val);
+        if(!key) return key;
+        return this.getByKey(key);
+      }
+    }
+
+    global.Bits = global.Bits || {};
+
+    global.Bits.NetworkManagerDeviceTypeBehaviorImpl = {
+      properties: {
+        types: {
+          type: Object,
+          readOnly: true,
+          value: Object.assign({},DeviceTypes.ALL)
+        },
+        keys: {
+          type: Array,
+          readOnly: true,
+          value: Array.from(DeviceTypes.KEYS)
+        }
+      },
+
+      getTypeByKey: function(key='') {
+        return DeviceTypes.getByKey(key);
+      },
+
+      getTypeValueByKey: function(key='') {
+        return DeviceTypes.getAttrByKey(key, 'value');
+      },
+
+      getTypeNameByKey: function(key='') {
+        return DeviceTypes.getAttrByKey(key, 'name');
+      },
+
+      getTypeLabelByKey: function(key='') {
+        return DeviceTypes.getAttrByKey(key, 'label');
+      },
+
+      getTypeByValue: function(value) {
+        return DeviceTypes.getOneWhereAttrIsValue('value', value);
+      },
+    };
+
+    global.Bits.NetworkManagerDeviceTypeBehavior = [
+      global.Bits.NetworkManagerDeviceTypeBehaviorImpl
+    ];
+
+  })(this);
+</script>

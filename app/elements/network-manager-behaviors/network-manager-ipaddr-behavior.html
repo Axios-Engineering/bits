@@ -1,0 +1,86 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="./network-manager-ip-validation-behavior.html">
+<link rel="import" href="./network-manager-cidr-validation-behavior.html">
+<link rel="import" href="./network-manager-ip-validation-behavior.html">
+
+<!-- bplint-disable no-unused-import -->
+<script type="text/javascript" src="../../bower_components/ipaddr.js/ipaddr.min.js"></script>
+
+<script>
+  ((global) => {
+    'use strict';
+
+    global.Bits = global.Bits || {};
+
+    global.Bits.NetworkManagerIpaddrBehaviorImpl = {
+      _joinOctets: function(octets) {
+        return octets.join('.');
+      },
+
+      parseCidr: function(cidr) {
+        if(!this.isValidCidrV4(cidr)) return null;
+
+        return this._parseCidr(cidr);
+      },
+
+      subnetMaskFromPrefixLength: function(prefixLength) {
+        const subnetMask = ipaddr.IPv4.subnetMaskFromPrefixLength(prefixLength);
+
+        return this._joinOctets(subnetMask.octets);
+      },
+
+      prefixLengthFromSubnetMask: function(subnetMask) {
+        return subnetMask.split('.').map(Number).map(octet => (octet >>> 0).toString(2)).join('').split('1').length - 1;
+      },
+
+      broadcastAddressFromCidr: function(cidr) {
+        const broadcastAddress = ipaddr.IPv4.broadcastAddressFromCIDR(cidr);
+
+        return this._joinOctets(broadcastAddress.octets);
+      },
+
+      networkAddressFromCidr: function(cidr) {
+        const networkAddress = ipaddr.IPv4.networkAddressFromCIDR(cidr);
+
+        return this._joinOctets(networkAddress.octets);
+      },
+
+      _parseCidr: function(cidr) {
+        let parseCidr = ipaddr.parseCIDR(cidr);
+
+        if(!(Array.isArray(parseCidr) && parseCidr.length === 2)) return null;
+
+        const address = this._joinOctets(parseCidr[0].octets);
+        const prefixLength = parseCidr[1];
+
+        return {
+          address: address,
+          prefixLength: prefixLength,
+          subnetMask: this.subnetMaskFromPrefixLength(prefixLength),
+          broadcastAddress: this.broadcastAddressFromCidr(cidr)
+        };
+      },
+    };
+
+    global.Bits.NetworkManagerIpaddrBehavior = [
+      global.Bits.NetworkManagerIpValidationBehavior,
+      global.Bits.NetworkManagerCidrValidationBehavior,
+      global.Bits.NetworkManagerIpaddrBehaviorImpl
+    ];
+  })(this);
+</script>

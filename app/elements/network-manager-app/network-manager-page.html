@@ -1,0 +1,169 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<!-- bplint-enable no-unused-import -->
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../base-shared-styles/base-shared-styles.html">
+<link rel="import" href="../base-layout/base-lazy-content/base-lazy-content.html">
+
+<dom-module id="network-manager-page">
+  <template>
+    <style include="base-shared-styles">
+      :host {
+        display: block;
+        position: relative;
+        height: 100%;
+      }
+
+      #content {
+        height: 100%;
+        position: relative;
+      }
+    </style>
+
+    <app-location
+      route="{{route}}">
+    </app-location>
+
+    <app-route
+      route="{{route}}"
+      pattern="/network-manager/[[routePath]]/:itemId"
+      data="{{routeData}}">
+    </app-route>
+
+    <base-lazy-content
+      id="content"
+      page="[[page]]"
+      current-element="{{element}}">
+    </base-lazy-content>
+
+    <paper-toast id="snackbar"></paper-toast>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      Polymer({
+        is: 'network-manager-page',
+
+        behaviors: [Polymer.IronResizableBehavior],
+
+        properties: {
+          itemId: {
+            type: String,
+            computed: '_computeItemId(route.*)',
+            observer: '_observeItemId',
+            notify: true
+          },
+          pageName: {
+            type: String,
+            value: 'list',
+            notify: true
+          },
+          page: {
+            type: Object,
+            computed: '_computePage(pageName, pages.*)'
+          },
+          element: {
+            type: Object,
+            notify: true
+          }
+        },
+
+        _computeItemId: function() {
+          let itemId = null
+
+          if(this.routeData && this.routeData.itemId) {
+            itemId = this.routeData.itemId;
+          }
+
+          return itemId;
+        },
+
+        _computePage: function(pageName) {
+          return this.pages.find(item => item.name === pageName);
+        },
+
+        observers: [
+          '_observeElementItemId(element, itemId)'
+        ],
+
+        _observeItemId: function(itemId) {
+          if(itemId && itemId === 'create' && this.pageName !== 'create') {
+            this.set('pageName', 'create');
+          }
+          else if(itemId && this.pageName !== 'detail') {
+            this.set('pageName', 'detail');
+          }
+          else if(this.pageName !== 'list') {
+            this.set('pageName', 'list');
+          }
+        },
+
+        _observeElementItemId: function(element, itemId) {
+          if(!this.element) return;
+
+          if(itemId !== 'create' && this.pageName === 'detail') {
+            this.element.set('itemId', this.itemId);
+          }
+
+          if(this.page.properties) {
+            Object.keys(this.page.properties).map(key => element.set(key, this.page.properties[key]));
+          }
+        },
+
+        listeners: {
+          'network-manager-show-message': '_onNetworkManagerShowMessage',
+          'network-manager-show-list-page': '_onNetworkManagerShowListPage',
+          'network-manager-show-detail-page': '_onNetworkManagerShowDetailPage'
+        },
+
+        _onNetworkManagerShowListPage: function(event, detail) {
+          this._pushState();
+        },
+
+        _onNetworkManagerShowDetailPage: function(event, detail) {
+          this._pushState(detail);
+        },
+
+        _onNetworkManagerShowMessage: function(event, detail) {
+          this.showSnackbar(detail);
+        },
+
+        _pushState: function(path='') {
+          window.history.pushState({}, null, `/network-manager/${this.routePath}/${path}`);
+          window.dispatchEvent(new CustomEvent('location-changed'));
+        },
+
+        showSnackbar: function(message) {
+          if ('string' === typeof(message) && message.length > 0) {
+            this.$.snackbar.set('text', message);
+            this.$.snackbar.open();
+          } else {
+            console.warn('Message must be a non-empty string:', message);
+          }
+        },
+
+      });
+
+    })(this);
+  </script>
+</dom-module>

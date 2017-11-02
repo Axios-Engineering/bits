@@ -1,0 +1,154 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../base-layout/base-single-grid-item-wrapper/base-single-grid-item-wrapper.html">
+<link rel="import" href="../base-layout/base-header-layout/base-header-layout.html">
+<link rel="import" href="../base-moment/base-moment.html">
+<link rel="import" href="../network-manager-app/network-manager-shared-styles.html">
+<link rel="import" href="../network-manager-connections/network-manager-connections.html">
+
+<dom-module id="network-manager-list">
+  <template>
+    <style include="network-manager-shared-styles">
+      :host {
+        display: block;
+        height: 100%;
+      }
+
+      .item-name {
+        flex: 0 0 20%;
+      }
+
+      .item-uuid {
+        @apply --layout-flex;
+      }
+
+      .item-updated {
+        flex: 0 0 33%;
+      }
+
+      @media (max-width: 600px) {
+        .item-name {
+          @apply --layout-flex;
+        }
+
+        .item-updated {
+          flex: 0 0 40%;
+        }
+      }
+    </style>
+
+    <network-manager-connections
+      filtered-items="{{items}}"
+      type="[[type]]">
+    </network-manager-connections>
+
+    <base-header-layout x-title="[[xTitle]]" no-back>
+      <div class="header-toolbar">
+        <a href="/network-manager/[[urlPart]]/create" tabindex="-1">
+          <paper-button class="primary-btn-light">Create New</paper-button>
+        </a>
+      </div>
+      <div class="content">
+        <base-single-grid-item-wrapper>
+          <div class="line line-filter">
+            <paper-input no-label-float label="Filter" value="{{filterVal}}">
+              <paper-icon-button suffix icon="clear" alt="Clear" title="Clear" on-tap="_onTapClearFilter"></paper-icon-button>
+            </paper-input>
+          </div>
+          <div class="line line-header">
+            <span class="item item-name">Name</span>
+            <span class="item item-uuid hide-below-600">UUID</span>
+            <span class="item item-updated">Last Used</span>
+          </div>
+          <template is="dom-repeat" items="[[items]]" filter="[[_filter(filterVal)]]">
+            <div class="line line-item" on-tap="_onTapDetail">
+              <span class="item item-name">[[item.connection.id]]</span>
+              <span class="item item-uuid hide-below-600">[[item.connection.uuid]]</span>
+              <span class="item item-updated"><base-moment timestamp="[[item.connection.timestamp]]" is-epoch reformat></base-moment></span>
+            </div>
+          </template>
+        </base-single-grid-item-wrapper>
+      </div>
+    </base-header-layout>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      function deepSearch(regex, item) {
+        let match = false;
+
+        if(Array.isArray(item)) {
+          match = item.some(item => deepSearch(regex, item));
+        }
+        else if(typeof item === 'object' && Array.isArray(Object.keys(item))) {
+          match = Object.keys(item).some(key => deepSearch(regex, item[key]));
+        }
+        else {
+          match = regex.test(String(item));
+        }
+
+        return match;
+      }
+
+      Polymer({
+        is: 'network-manager-list',
+
+        behaviors: [
+          Polymer.IronResizableBehavior
+        ],
+
+        properties: {
+          items: {
+            type: Array,
+            value: Array.from([])
+          },
+          filterVal: {
+            type: String,
+            value: ''
+          }
+        },
+
+        _onTapDetail: function(event, detail) {
+          this.fire('network-manager-show-detail-page', event.model.item.id);
+        },
+
+        _onTapClearFilter: function() {
+          this.set('filterVal', '');
+        },
+
+        _filter: function(filterVal) {
+          return function(item) {
+            if(filterVal.length < 1) return item;
+            const regex = new RegExp(filterVal, 'i');
+
+            return deepSearch(regex, item);
+          };
+        }
+
+      });
+
+    })(this);
+  </script>
+</dom-module>
