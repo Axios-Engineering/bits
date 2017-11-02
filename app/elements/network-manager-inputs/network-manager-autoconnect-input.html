@@ -31,7 +31,7 @@ limitations under the License.
     </style>
 
     <paper-toggle-button
-      checked="{{autoConnect}}"
+      checked="{{checked}}"
       disabled="[[_calculateDisabled(disabled, readonly)]]">
       <span>Automatically connect to this network<span class="hide-below-600"> when it is available</span>.</span>
     </paper-toggle-button>
@@ -44,7 +44,7 @@ limitations under the License.
         is: 'network-manager-autoconnect-input',
 
         properties: {
-          value: {
+          checked: {
             type: Boolean,
             notify: true
           }

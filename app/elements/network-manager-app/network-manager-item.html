@@ -128,6 +128,26 @@ limitations under the License.
         ITEM_NOT_FOUND: 'Item not found.'
       };
 
+      function deepRemoveEmpty(obj) {
+        if(Array.isArray(obj)) {
+          obj = obj.filter(item => !deepRemoveEmpty(item));
+          if(obj.length === 0) {
+            return true;
+          }
+        }
+        else if(typeof obj === 'object') {
+          Object.keys(obj).forEach(key => {
+            if(deepRemoveEmpty(obj[key])) {
+              delete obj[key];
+            }
+          });
+          if(Object.keys(obj).length === 0) {
+            return true;
+          }
+        }
+        return false;
+      }
+
       Polymer({
         is: 'network-manager-item',
 
@@ -259,17 +279,19 @@ limitations under the License.
         _sanitizeItem: function() {
           if(Array.isArray(this.item.ipv4.dns)) {
             this.item.ipv4.dns = this.item.ipv4.dns.filter(item => !!item);
-            if(this.item.ipv4.dns.length === 0) {
-              delete this.item.ipv4.dns;
-            }
+            // if(this.item.ipv4.dns.length === 0) {
+            //   delete this.item.ipv4.dns;
+            // }
           }
 
           if(Array.isArray(this.item.ipv4['address-data'])) {
             this.item.ipv4['address-data'] = this.item.ipv4['address-data'].filter(item => !!Object.keys(item).length);
-            if(this.item.ipv4['address-data'].length === 0) {
-              delete this.item.ipv4['address-data'];
-            }
+            // if(this.item.ipv4['address-data'].length === 0) {
+            //   delete this.item.ipv4['address-data'];
+            // }
           }
+
+          Object.keys(this.item).forEach(key => deepRemoveEmpty(this.item[key]));
         },
 
         createItem: function() {
