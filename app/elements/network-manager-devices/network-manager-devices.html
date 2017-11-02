@@ -22,6 +22,19 @@ limitations under the License.
 ((global) => {
   'use strict';
 
+  class DevicesMessenger {
+    static get TAG() {
+      return 'networkManager#Devices';
+    }
+
+    static get REQUEST() {
+      return {
+        MANAGE: `${DevicesMessenger.TAG} manage`,
+        UNMANAGE: `${DevicesMessenger.TAG} unmanage`
+      };
+    }
+  }
+
   const DEVICE_TYPES = {
     ETHERNET: 1,
     BRIDGE: 13,
@@ -38,7 +51,7 @@ limitations under the License.
 
     properties: {
       tag: {
-        value: 'networkManager#Devices'
+        value: DevicesMessenger.TAG
       },
       type: {
         type: String
@@ -60,7 +73,16 @@ limitations under the License.
 
     getTypes: function() {
       return Object.assign({}, DEVICE_TYPES);
+    },
+
+    manage: function(item) {
+      return this.sendRequest(DevicesMessenger.REQUEST.MANAGE, item);
+    },
+
+    unmanage: function(item) {
+      return this.sendRequest(DevicesMessenger.REQUEST.UNMANAGE, item);
     }
+
   });
 })(this);
 </script>

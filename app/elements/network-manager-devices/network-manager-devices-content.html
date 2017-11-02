@@ -76,6 +76,7 @@ limitations under the License.
     </style>
 
     <network-manager-devices
+      id="devices"
       items="{{devices}}">
     </network-manager-devices>
 
@@ -104,6 +105,7 @@ limitations under the License.
             <div class$="line line-item no-hover active-[[item.Managed]]">
               <span class="item item-no-pad-left item-overflow-visible item-cta">
                 <paper-toggle-button
+                  on-tap="_onTapToggleManaged"
                   checked=[[item.Managed]]>
                 </paper-toggle-button>
               </span>
@@ -179,6 +181,17 @@ limitations under the License.
           if(!Array.isArray(this.devices)) return [];
 
           return Array.from(this.devices).sort(sortByManagedStateAndInterface);
+        },
+
+        _onTapToggleManaged: function(event, detail) {
+          const item = event.model.item;
+
+          if(item.Managed) {
+            this.$.devices.unmanage(item);
+          }
+          else {
+            this.$.devices.manage(item);
+          }
         },
 
         _calculateDeviceType: function(value) {
