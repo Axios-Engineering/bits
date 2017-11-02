@@ -299,6 +299,10 @@ limitations under the License.
             // }
           }
 
+          if(this.item.connection.hasOwnProperty('autoconnect-priority') && typeof this.item.connection['autoconnect-priority'] === "string") {
+            this.item.connection['autoconnect-priority'] = parseFloat(this.item.connection['autoconnect-priority']);
+          }
+
           Object.keys(this.item).forEach(key => deepRemoveEmpty(this.item[key]));
         },
 
