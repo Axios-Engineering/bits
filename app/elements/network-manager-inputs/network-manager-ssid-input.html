@@ -18,13 +18,16 @@ limitations under the License.
 <link rel="import" href="../network-manager-behaviors/network-manager-invalid-behavior.html">
 <!-- bplint-disable no-unused-import -->
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../base-shared-styles/base-shared-styles.html">
+<link rel="import" href="../base-system/base-system.html">
 <link rel="import" href="../network-manager-devices/network-manager-devices.html">
 
 <dom-module id="network-manager-ssid-input">
   <template>
-    <style>
+    <style include="base-shared-styles">
       :host {
         display: block;
       }
@@ -36,7 +39,20 @@ limitations under the License.
       paper-checkbox {
         margin-top: 12px;
       }
+
+      .justify {
+        @apply --layout-horizontal;
+        @apply --layout-end-justified;
+      }
+
+      .push {
+        @apply --layout-flex;
+      }
     </style>
+
+    <base-system
+      bits-id="{{bitsId}}">
+    </base-system>
 
     <network-manager-devices
       id="devices"
@@ -73,12 +89,22 @@ limitations under the License.
         hidden="[[!ssidIsHidden]]">
       </paper-input>
     </div>
-    <paper-checkbox
-      hidden="[[hideManualToggle]]"
-      checked="{{ssidIsHidden}}"
-      disabled="[[_calculateDisabled(disabled, readonly, interfaceName, isHotspot)]]">
-      Manually enter the SSID.
-    </paper-checkbox>
+    <div class="justify">
+      <paper-checkbox
+        hidden="[[hideManualToggle]]"
+        checked="{{ssidIsHidden}}"
+        disabled="[[_calculateDisabled(disabled, readonly, interfaceName, isHotspot)]]">
+        Manually enter the SSID.
+      </paper-checkbox>
+      <span class="push"></span>
+      <paper-button
+        class="primary-btn-light"
+        hidden="[[_calculateDefaultDisabled(isHotspot, hideManualToggle)]]"
+        disabled="[[!isHotspot]]"
+        on-tap="_onTapDefault">
+        Default
+      </paper-button>
+    </div>
   </template>
   <script>
     ((global) => {
@@ -184,8 +210,31 @@ limitations under the License.
           if(isHotspot) this.set('ssidIsHidden', true);
         },
 
-        _calculateDisabled(disabled, readonly, interfaceName, isHotspot) {
+        _observeBitsIdAndIsHotspot: function(bitsId) {
+          this._setValueToBitsId();
+        },
+
+        observers: [
+          '_observeBitsIdAndIsHotspot(bitsId, isHotspot)'
+        ],
+
+        _onTapDefault: function() {
+          this._setValueToBitsId(true);
+        },
+
+        _calculateDisabled: function(disabled, readonly, interfaceName, isHotspot) {
           return disabled || readonly || !interfaceName || isHotspot;
+        },
+
+        _calculateDefaultDisabled: function(isHotspot, hideManualToggle) {
+          return !isHotspot || hideManualToggle;
+        },
+
+        _setValueToBitsId: function(force=false) {
+          if(this.bitsId && this.isHotspot && (!this.value || force)) {
+            this.set('ssidIsHidden', true);
+            this.set('value', this.bitsId);
+          }
         }
 
       });
