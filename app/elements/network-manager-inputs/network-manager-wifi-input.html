@@ -104,13 +104,14 @@ limitations under the License.
         required>
       </network-manager-ssid-input>
       <network-manager-password-input
+        value="{{item.802-11-wireless-security.psk}}"
         disabled="[[disabled]]"
         readonly="[[readonly]]"
         invalid="{{invalidList.password}}"
         minlength="8"
         min-uppercase="1"
         error-message="[[_calculatePasswordErrorMessage(isHotspot)]]"
-        required=[[!isHotspot]]>
+        required=[[isHotspot]]>
       </network-manager-password-input>
     </base-single-grid-item-wrapper>
 
@@ -216,7 +217,8 @@ limitations under the License.
           },
           isHotspot: {
             type: Boolean,
-            computed: '_computeIsHotspot(item.*)'
+            computed: '_computeIsHotspot(item.*)',
+            observer: '_observeIsHotspot'
           }
         },
 
@@ -256,6 +258,15 @@ limitations under the License.
           return 'Please enter a password.';
         },
 
+        _observeIsHotspot: function(isHotspot) {
+          if(isHotspot) {
+            this.set('item.802-11-wireless-security.key-mgmt', 'wpa-psk');
+          }
+          else if(this.item && this.item['802-11-wireless-security'] && this.item['802-11-wireless-security']['key-mgmt']) {
+            delete this.item['802-11-wireless-security']['key-mgmt'];
+          }
+        },
+
         _invalidListHasAnyInvalid: function(list) {
           if(!list) return true;
 
@@ -273,6 +284,7 @@ limitations under the License.
         },
 
         _resetItem: function() {
+          // https://developer.gnome.org/NetworkManager/stable/nm-settings.html#secrets-flags
           this.set('item', Object.assign({}, {
             connection: {autoconnect: false, 'interface-name': ''},
             ipv4: {},
