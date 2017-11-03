@@ -230,8 +230,27 @@ limitations under the License.
         observers: [
           '_observeItemInvalid(invalidList.*)',
           '_observeItemInvalid(invalidHotspotList.*)',
-          '_observeItemInvalid(hotspotOpened)'
+          '_observeItemInvalid(hotspotOpened)',
+          '_observeChannel(item.802-11-wireless.channel)'
         ],
+
+        _observeIsHotspot: function(isHotspot) {
+          if(isHotspot) {
+            this.set('item.802-11-wireless-security.key-mgmt', 'wpa-psk');
+            this.set('item.ipv4.method', 'shared');
+          }
+          else if(this.item && this.item['802-11-wireless-security'] && this.item['802-11-wireless-security']['key-mgmt']) {
+            delete this.item['802-11-wireless-security']['key-mgmt'];
+          }
+
+          if(!isHotspot) {
+            this.set('item.ipv4.method', 'auto');
+          }
+        },
+
+        _observeChannel: function(channel) {
+          if(channel && typeof channel === 'string') this.set('item.802-11-wireless.channel', parseFloat(channel));
+        },
 
         _calculateValidity: function() {
           if(!this.isHotspot && this.invalidList.password) this.invalidList.password = false;
@@ -256,15 +275,6 @@ limitations under the License.
         _calculatePasswordErrorMessage: function(isHotspot) {
           if(isHotspot) return 'Please enter at least 8 characters and one uppercase letter.';
           return 'Please enter a password.';
-        },
-
-        _observeIsHotspot: function(isHotspot) {
-          if(isHotspot) {
-            this.set('item.802-11-wireless-security.key-mgmt', 'wpa-psk');
-          }
-          else if(this.item && this.item['802-11-wireless-security'] && this.item['802-11-wireless-security']['key-mgmt']) {
-            delete this.item['802-11-wireless-security']['key-mgmt'];
-          }
         },
 
         _invalidListHasAnyInvalid: function(list) {
