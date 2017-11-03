@@ -194,7 +194,7 @@ limitations under the License.
         },
 
         _observeItemId: function(itemId) {
-          if(itemId) {
+          if(itemId !== undefined && itemId !== null) {
             if(itemId !== 'create') {
               this.set('readonly', true);
               this.set('invalid', true);
@@ -270,7 +270,7 @@ limitations under the License.
         },
 
         _itemHasBeenUpdated: function(detail) {
-          return (this.$.connections.tag === detail.tag && detail.items[0].id === this.item.id);
+          return (this.item && this.$.connections.tag === detail.tag && detail.items[0].id === this.item.id);
         },
 
         _debounceTitle: function(name) {
