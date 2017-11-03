@@ -210,16 +210,11 @@ limitations under the License.
           if(isHotspot) this.set('ssidIsHidden', true);
         },
 
-        _observeBitsIdAndIsHotspot: function(bitsId) {
-          this._setValueToBitsId();
-        },
-
-        observers: [
-          '_observeBitsIdAndIsHotspot(bitsId, isHotspot)'
-        ],
-
         _onTapDefault: function() {
-          this._setValueToBitsId(true);
+          if(this.bitsId && this.isHotspot) {
+            this.set('ssidIsHidden', true);
+            this.set('value', this.bitsId);
+          }
         },
 
         _calculateDisabled: function(disabled, readonly, interfaceName, isHotspot) {
@@ -228,13 +223,6 @@ limitations under the License.
 
         _calculateDefaultDisabled: function(isHotspot, hideManualToggle) {
           return !isHotspot || hideManualToggle;
-        },
-
-        _setValueToBitsId: function(force=false) {
-          if(this.bitsId && this.isHotspot && (!this.value || force)) {
-            this.set('ssidIsHidden', true);
-            this.set('value', this.bitsId);
-          }
         }
 
       });
