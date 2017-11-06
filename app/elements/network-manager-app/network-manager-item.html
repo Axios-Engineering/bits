@@ -239,7 +239,7 @@ limitations under the License.
 
         _onTapSaveItem: function() {
           if (!this.invalid) {
-            if(!!this.item.id) {
+            if(this.item.hasOwnProperty('id') && this.item.id > -1) {
               this.updateItem();
             }
             else {
