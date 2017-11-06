@@ -270,7 +270,14 @@ limitations under the License.
         },
 
         _itemHasBeenUpdated: function(detail) {
-          return (this.item && this.$.connections.tag === detail.tag && detail.items[0].id === this.item.id);
+          return (
+            this.item &&
+            Array.isArray(detail.items) &&
+            detail.items.length > 0 &&
+            this.$.connections.tag === detail.tag &&
+            detail.items[0].hasOwnProperty('id') &&
+            detail.items[0].id === this.item.id
+          );
         },
 
         _debounceTitle: function(name) {
@@ -286,7 +293,7 @@ limitations under the License.
 
         _sanitizeItem: function() {
           if(Array.isArray(this.item.ipv4.dns)) {
-            this.item.ipv4.dns = this.item.ipv4.dns.filter(item => !!item);
+            this.item.ipv4.dns = [...new Set(this.item.ipv4.dns.filter(item => !!item))];
           }
 
           if(Array.isArray(this.item.ipv4['address-data'])) {
@@ -314,7 +321,9 @@ limitations under the License.
 
           return this.$.connections.update(this.item.id, this.item)
           .then(() => this.fire('network-manager-show-message', DEFAULTS.UPDATE_SUCCESS))
-          .catch(err => this.fire('network-manager-show-message', this._parseError(err)));
+          .catch(err => this.fire('network-manager-show-message', this._parseError(err)))
+          .then(() => this.set('readonly', true))
+          .then(() => this.getItemById(this.item.id));
         },
 
         deleteItem: function() {
