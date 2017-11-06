@@ -176,17 +176,6 @@ limitations under the License.
         },
 
         __setItems: function() {
-          if(this.debug) clearTimeout(this.debug);
-          this.debug = setTimeout(() => {
-            console.groupCollapsed('Devices');
-            console.log(this.devices);
-            console.groupEnd();
-
-            console.groupCollapsed('Connections');
-            console.log(this.connections);
-            console.groupEnd();
-          }, 200);
-
           let items = [];
 
           if(Array.isArray(this.connections)) {

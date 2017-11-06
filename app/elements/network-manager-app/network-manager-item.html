@@ -303,10 +303,6 @@ limitations under the License.
         createItem: function() {
           this._sanitizeItem();
 
-          console.groupCollapsed('Create');
-          console.log(this.item);
-          console.groupEnd();
-
           return this.$.connections.create(this.item)
           .then(item => this.fire('network-manager-show-detail-page', item.id))
           .then(() => this.fire('network-manager-show-message', DEFAULTS.CREATE_SUCCESS))
@@ -315,10 +311,6 @@ limitations under the License.
 
         updateItem: function() {
           this._sanitizeItem();
-
-          console.groupCollapsed('Update');
-          console.log(this.item);
-          console.groupEnd();
 
           return this.$.connections.update(this.item.id, this.item)
           .then(() => this.fire('network-manager-show-message', DEFAULTS.UPDATE_SUCCESS))
