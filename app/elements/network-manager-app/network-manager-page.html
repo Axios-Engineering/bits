@@ -90,6 +90,11 @@ limitations under the License.
 
           if(this.routeData && this.routeData.itemId) {
             itemId = this.routeData.itemId;
+
+            const lastPathItem = window.location.pathname.split('/').pop();
+            if(lastPathItem && this.routePath && lastPathItem === this.routePath) {
+              itemId = '';
+            }
           }
 
           return itemId;
