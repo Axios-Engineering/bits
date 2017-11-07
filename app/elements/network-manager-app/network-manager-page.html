@@ -109,10 +109,11 @@ limitations under the License.
         ],
 
         _observeItemId: function(itemId) {
-          if(itemId && itemId === 'create' && this.pageName !== 'create') {
+          const itemIdIsValid = (typeof itemId === 'string' || typeof itemId === 'number');
+          if(itemIdIsValid && itemId === 'create' && this.pageName !== 'create') {
             this.set('pageName', 'create');
           }
-          else if(itemId && this.pageName !== 'detail') {
+          else if(itemIdIsValid && this.pageName !== 'detail') {
             this.set('pageName', 'detail');
           }
           else if(this.pageName !== 'list') {
