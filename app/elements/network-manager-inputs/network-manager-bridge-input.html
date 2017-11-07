@@ -56,7 +56,7 @@ limitations under the License.
         required>
       </network-manager-name-input>
       <network-manager-name-input
-        value="{{item.bridge.interface-name}}"
+        value="{{item.connection.interface-name}}"
         placeholder="Interface Name"
         disabled="[[disabled]]"
         readonly="[[readonly]]"
@@ -193,10 +193,9 @@ limitations under the License.
 
         _resetItem: function() {
           this.set('item', Object.assign({}, {
-            connection: {autoconnect: false},
+            connection: {autoconnect: false, type: 'bridge'},
             ipv4: {},
-            ipv6: {method: 'ignore'},
-            bridge: {'interface-name': ''}
+            ipv6: {method: 'ignore'}
           }));
         }
 

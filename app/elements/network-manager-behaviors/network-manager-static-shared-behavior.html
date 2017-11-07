@@ -79,7 +79,12 @@ limitations under the License.
           this.set('item.ipv4.address-data', [{}]);
         }
 
-        if(!this.itemHasDnsData()) {
+        if(this.itemHasDnsData()) {
+          if(this.item.ipv4.dns.length === 1) {
+            this.push('item.ipv4.dns', null);
+          }
+        }
+        else {
           this.set('item.ipv4.dns', [null, undefined]); // strange polymer bug if these are initialized at the same value
         }
       },
@@ -133,7 +138,7 @@ limitations under the License.
         return (
           this.item.ipv4 &&
           Array.isArray(this.item.ipv4.dns) &&
-          this.item.ipv4.dns.length > 1
+          this.item.ipv4.dns.length >= 1
         );
       },
 
