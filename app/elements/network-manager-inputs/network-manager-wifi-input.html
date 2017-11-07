@@ -110,7 +110,7 @@ limitations under the License.
         invalid="{{invalidList.password}}"
         minlength="8"
         min-uppercase="1"
-        error-message="[[_calculatePasswordErrorMessage(isHotspot)]]"
+        error-message="Please enter at least 8 characters and one uppercase letter."
         required=[[isHotspot]]>
       </network-manager-password-input>
     </base-single-grid-item-wrapper>
@@ -231,16 +231,13 @@ limitations under the License.
           '_observeItemInvalid(invalidList.*)',
           '_observeItemInvalid(invalidHotspotList.*)',
           '_observeItemInvalid(hotspotOpened)',
-          '_observeChannel(item.802-11-wireless.channel)'
+          '_observeChannel(item.802-11-wireless.channel)',
+          '_observePasswordAndIsHotspot(item.802-11-wireless-security.psk, isHotspot)'
         ],
 
         _observeIsHotspot: function(isHotspot) {
           if(isHotspot) {
-            this.set('item.802-11-wireless-security.key-mgmt', 'wpa-psk');
             this.set('item.ipv4.method', 'shared');
-          }
-          else if(this.item && this.item['802-11-wireless-security'] && this.item['802-11-wireless-security']['key-mgmt']) {
-            delete this.item['802-11-wireless-security']['key-mgmt'];
           }
 
           if(!isHotspot) {
@@ -250,6 +247,15 @@ limitations under the License.
 
         _observeChannel: function(channel) {
           if(channel && typeof channel === 'string') this.set('item.802-11-wireless.channel', parseFloat(channel));
+        },
+
+        _observePasswordAndIsHotspot: function(password, isHotspot) {
+          if(isHotspot || (password && password.length > 0)) {
+            this.item['802-11-wireless-security']['key-mgmt'] = 'wpa-psk';
+          }
+          else {
+            delete this.item['802-11-wireless-security']['key-mgmt'];
+          }
         },
 
         _calculateValidity: function() {
@@ -272,11 +278,6 @@ limitations under the License.
           return !interfaceName || isHotspot;
         },
 
-        _calculatePasswordErrorMessage: function(isHotspot) {
-          if(isHotspot) return 'Please enter at least 8 characters and one uppercase letter.';
-          return 'Please enter a password.';
-        },
-
         _invalidListHasAnyInvalid: function(list) {
           if(!list) return true;
 
@@ -294,10 +295,9 @@ limitations under the License.
         },
 
         _resetItem: function() {
-          // https://developer.gnome.org/NetworkManager/stable/nm-settings.html#secrets-flags
           this.set('item', Object.assign({}, {
             connection: {autoconnect: false, 'interface-name': ''},
-            ipv4: {},
+            ipv4: {method: 'auto'},
             ipv6: {method: 'ignore'},
             '802-11-wireless': {},
             '802-11-wireless-security': {}

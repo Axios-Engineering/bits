@@ -304,6 +304,14 @@ limitations under the License.
             this.item.connection['autoconnect-priority'] = parseFloat(this.item.connection['autoconnect-priority']);
           }
 
+          if(this.item.connection.hasOwnProperty('interface-name') && this.item.connection['interface-name'].length === 0) {
+            delete this.item.connection['interface-name'];
+          }
+
+          if(this.item['802-11-wireless-security'] && Object.keys(this.item['802-11-wireless-security']).length === 0) {
+            delete this.item['802-11-wireless-security'];
+          }
+
           Object.keys(this.item).forEach(key => deepRemoveEmpty(this.item[key]));
         },
 

@@ -210,6 +210,16 @@ limitations under the License.
           if(isHotspot) this.set('ssidIsHidden', true);
         },
 
+        _observeIsHotspotAndValueAndItems: function(isHotspot, value) {
+          if(!isHotspot && Array.isArray(this.items) && !this.items.includes(value)) {
+            this.set('ssidIsHidden', true);
+          }
+        },
+
+        observers: [
+          '_observeIsHotspotAndValueAndItems(isHotspot, value, items.*)'
+        ],
+
         _onTapDefault: function() {
           if(this.bitsId && this.isHotspot) {
             this.set('ssidIsHidden', true);
