@@ -1,5 +1,13 @@
 {
-  "private": true,
+  "name": "bits-network-manager",
+  "version": "3.0.0",
+  "description": "BITS Network Manager",
+  "author": "LGS Innovations",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/LGSInnovations/bits-network-manager/issues"
+  },
+  "homepage": "https://github.com/LGSInnovations/bits-network-manager#readme",
   "scripts": {
     "bits:install": "yarn --prod && npm run bower:install:prod",
     "polymerLint": "polymer-lint --rules component-name-matches-filename,no-missing-import,no-unused-import,one-component,style-inside-template ./app/elements",

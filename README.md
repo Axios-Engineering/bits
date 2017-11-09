@@ -9,6 +9,7 @@
 ## Building the module
 
 ``` bash
+sudo apt install network-manager libdbus-1-dev
 npm install -g bower
 npm run build
 ```
