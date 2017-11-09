@@ -1,0 +1,289 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../base-layout/base-header-layout/base-header-layout.html">
+<link rel="import" href="../base-layout/base-single-grid-item-wrapper/base-single-grid-item-wrapper.html">
+<link rel="import" href="../base-moment/base-moment.html">
+<link rel="import" href="../network-manager-app/network-manager-shared-styles.html">
+<link rel="import" href="../network-manager-connections/network-manager-connections.html">
+<link rel="import" href="../network-manager-devices/network-manager-devices.html">
+
+<dom-module id="network-manager-dashboard">
+  <template>
+    <style include="network-manager-shared-styles">
+      :host {
+        display: block;
+        height: 100%;
+      }
+
+      .item-cta {
+        position: relative;
+        flex: 0 0 50px;
+      }
+
+      .item-name {
+        flex: 0 0 105px;
+      }
+
+      .item-uuid {
+        @apply --layout-flex;
+      }
+
+      .item-type {
+        flex: 0 0 120px;
+      }
+
+      .item-device {
+        flex: 0 0 85px;
+      }
+
+      .item-updated {
+        flex: 0 0 150px;
+      }
+
+      paper-toggle-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      @media (max-width: 1100px) {
+        .item-type {
+          @apply --layout-flex;
+        }
+      }
+
+      @media (max-width: 1024px) {
+        .item-type {
+          flex: 0 0 120px;
+        }
+      }
+
+      @media (max-width: 840px) {
+        .item-type {
+          @apply --layout-flex;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .item-device {
+          @apply --layout-flex;
+        }
+      }
+    </style>
+
+    <network-manager-connections
+      id="connections"
+      items="{{connections}}">
+    </network-manager-connections>
+
+    <network-manager-devices
+      items="{{devices}}">
+    </network-manager-devices>
+
+    <base-header-layout x-title="Network Connections" no-back>
+      <div class="content">
+        <base-single-grid-item-wrapper>
+          <div class="line line-header">
+            <span class="item item-no-pad-left item-overflow-visible item-cta"></span>
+            <span class="item item-name">Name</span>
+            <span class="item item-uuid hide-between-1024-1100 hide-below-840">UUID</span>
+            <span class="item item-type hide-below-480">Type</span>
+            <span class="item item-device">Device</span>
+            <span class="item item-updated hide-below-720">Last Used</span>
+          </div>
+          <template is="dom-repeat" items="[[items]]">
+            <div class$="line line-item active-[[item.active]]" on-tap="_onTapDetail">
+              <span class="item item-no-pad-left item-overflow-visible item-cta">
+                <paper-toggle-button
+                  checked=[[item.active]]>
+                </paper-toggle-button>
+              </span>
+              <span class="item item-name">[[item.name]]</span>
+              <span class="item item-uuid hide-between-1024-1100 hide-below-840">[[item.uuid]]</span>
+              <span class="item item-type hide-below-480">[[item.type]]</span>
+              <span class="item item-device">
+                <span hidden="[[!item.active]]">[[item.device]]</span>
+                <span hidden="[[item.active]]">--</span>
+              </span>
+              <span class="item item-updated hide-below-720"><base-moment timestamp="[[item.timestamp]]" is-epoch reformat></base-moment></span>
+            </div>
+          </template>
+        </base-single-grid-item-wrapper>
+      </div>
+    </base-header-layout>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      function sortByActiveAndConnectionId(itemA, itemB) {
+        if(itemA.active && itemB.active) {
+          return sortByConnectionId(itemA, itemB);
+        }
+        else if (itemA.active) {
+          return -1;
+        }
+        else if (itemB.active) {
+          return 1;
+        }
+        else {
+          return sortByConnectionId(itemA, itemB);
+        }
+      }
+
+      function sortByConnectionId(itemA, itemB) {
+        const idA = itemA.connection.id.toUpperCase();
+        const idB = itemB.connection.id.toUpperCase();
+
+        if (idA < idB) {
+          return -1;
+        }
+        if (idA > idB) {
+          return 1;
+        }
+        return 0;
+      }
+
+      Polymer({
+        is: 'network-manager-dashboard',
+
+        properties: {
+          items: {
+            type: Array,
+            value: Array.from([]),
+            readOnly: true
+          },
+          stateList: { // active state toggles back to false before connection becomes active, this in-memory list is for UX only
+            type: Array,
+            value: Array.from([])
+          }
+        },
+
+        __setItems: function() {
+          let items = [];
+
+          if(Array.isArray(this.connections)) {
+            const supported = this.$.connections.getTypes();
+            const supportedKeys = Object.keys(supported);
+            const supportedVals = supportedKeys.map(key => supported[key]);
+
+            let appliedConnections = [];
+            if(Array.isArray(this.devices)) {
+              appliedConnections = this.devices.filter(device => device.AppliedConnection.length > 0).map(device => device.AppliedConnection[0]);
+            }
+
+            items = this.connections.filter(item => supportedVals.includes(item.connection.type))
+              .map(item => Object.assign(item, {active: appliedConnections.some(appliedConnection => appliedConnection.connection.uuid === item.connection.uuid)}));
+            items.sort(sortByActiveAndConnectionId);
+
+
+            items = items.map(item => {
+              const routePath = supportedKeys.find(key => supported[key] === item.connection.type).toLowerCase();
+              const state = this.stateList.find(state => state.id === item.id);
+
+              if(state) {
+                if(state.active === item.active) {
+                  this._removeFromStateList(state.id);
+                }
+                else {
+                  item.active = !!state.active;
+                }
+              }
+
+              return {
+                id: item.id,
+                name: item.connection.id,
+                uuid: item.connection.uuid,
+                type: item.connection.type,
+                device: item.connection['interface-name'],
+                routePath: routePath,
+                active: item.active,
+                timestamp: item.connection.timestamp
+              };
+            });
+          }
+
+          this._setItems(items);
+        },
+
+        _observeConnectionsAndDevices: function() {
+          this.__setItems();
+        },
+
+        observers: [
+          '_observeConnectionsAndDevices(connections.*, devices.*)'
+        ],
+
+        _onTapDetail: function(event, detail) {
+          const item = event.model.item;
+          const element = Polymer.dom(event).localTarget;
+
+          if(element.elementMatches && element.elementMatches('paper-toggle-button')) {
+            const connection = this.connections.find(connection => connection.id === item.id);
+
+            if(!connection) console.warn('Invalid connection');
+
+            this._addToStateList({id: connection.id, active: !item.active});
+
+            if(item.active) {
+              this.$.connections.deactivate(connection)
+              .catch(err => this._catchActivationToggle(err, item));
+            }
+            else {
+              this.$.connections.activate(connection)
+              .catch(err => this._catchActivationToggle(err, item));
+            }
+          }
+          else {
+            window.history.pushState({}, null, `/network-manager/${item.routePath}/${item.id}`);
+            window.dispatchEvent(new CustomEvent('location-changed'));
+          }
+        },
+
+        _addToStateList: function(obj) {
+          const index = this.stateList.findIndex(item => item.id === obj.id);
+          if(index !== -1) {
+            this.set(`stateList.${index}.active`, obj.active);
+          }
+          else {
+            this.push('stateList', obj);
+          }
+        },
+
+        _removeFromStateList: function(id) {
+          const index = this.stateList.findIndex(item => item.id === id);
+          if(index !== -1) {
+            this.splice('stateList', index, 1);
+          }
+        },
+
+        _catchActivationToggle: function(err, obj) {
+          this._removeFromStateList(obj.id);
+          const index = this.items.findIndex(item => item.id === obj.id);
+          if(index !== undefined) {
+            this.__setItems();
+          }
+          this.fire('network-manager-show-message', `Error: ${err.message}`);
+        }
+
+      });
+
+    })(this);
+  </script>
+</dom-module>

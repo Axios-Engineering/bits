@@ -1,0 +1,140 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../network-manager-behaviors/network-manager-invalid-behavior.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+
+<dom-module id="network-manager-wifi-channel-input">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <vaadin-combo-box
+      tabindex="0"
+      items="[[items]]"
+      item-label-path="label"
+      item-value-path="value"
+      value="{{value}}"
+      label="[[placeholder]]"
+      error-message="[[errorMessage]]"
+      disabled="[[disabled]]"
+      readonly="[[readonly]]"
+      required="[[required]]"
+      invalid="{{_invalid}}"
+      no-label-float="[[noLabelFloat]]"
+      auto-validate>
+    </vaadin-combo-box>
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      const LABEL = {
+        PLACEHOLDER: 'Channel',
+        ERROR_MSG: 'Please select a channel.'
+      };
+
+      const CHANNELS_BY_BAND = {
+        A: [5035, 5040, 5045, 5055, 5060, 5080, 5170, 5180, 5190, 5200, 5210, 5220, 5230, 5240, 5250, 5260, 5280, 5290, 5300, 5320, 5500, 5520, 5540, 5560, 5580, 5600, 5620, 5640, 5660, 5680, 5700, 5745, 5760, 5765, 5785, 5800, 5805, 5825, 4915, 4920, 4925, 4935, 4945, 4960, 4980],
+        BG: [2412, 2417, 2422, 2427, 2432, 2437, 2442, 2447, 2452, 2457, 2462, 2467, 2472, 2484]
+      };
+
+      Polymer({
+        is: 'network-manager-wifi-channel-input',
+
+        behaviors: [global.Bits.NetworkManagerInvalidBehavior],
+
+        properties: {
+          placeholder: {
+            type: String,
+            value: LABEL.PLACEHOLDER
+          },
+          errorMessage: {
+            type: String,
+            value: LABEL.ERROR_MSG
+          },
+          band: {
+            type: String
+          },
+          noLabelFloat: {
+            type: Boolean,
+            value: false
+          },
+          items: {
+            type: Array,
+            computed: '_computeItems(band)',
+            observer: '_observeItems'
+          },
+          value: {
+            type: String,
+            notify: true
+          }
+        },
+
+        _computeItems: function(band) {
+          band = String(band).toUpperCase();
+          let items = [];
+
+          if(CHANNELS_BY_BAND[band]) {
+            items = CHANNELS_BY_BAND[band].map(frequency => {
+              const channel = this.frequencyToChannel(frequency);
+              return {
+                label: `${channel} (${frequency} MHz)`,
+                value: channel
+              };
+            });
+          }
+
+          return items;
+        },
+
+        _observeItems: function() {
+          this.debounce('NetworkManager#WifiChannelInput', () => {
+            if(!(Array.isArray(this.items) && this.items.some(item => item.value === this.value))) {
+              this.set('value', '');
+            }
+          }, 250);
+        },
+
+        frequencyToChannel: function(frequency) {
+          let channel = -1;
+          if (frequency >= 2412 && frequency <= 2484) {
+            channel = Math.floor((frequency - 2412) / 5);
+            if(frequency !== 2484) channel += 1;
+          }
+          else if (frequency >= 4915 && frequency <= 4980) {
+            channel = (frequency - 4915) / 5 + 183;
+            if(frequency === 4945) channel -= 1;
+          }
+          else if (frequency >= 5035 && frequency <= 5080) {
+            channel = (frequency - 5035) / 5 + 7;
+          }
+          else if (frequency >= 5170 && frequency <= 5825) {
+            channel = (frequency - 5170) / 5 + 34;
+          }
+
+          return channel;
+        }
+
+      });
+
+    })(this);
+  </script>
+</dom-module>

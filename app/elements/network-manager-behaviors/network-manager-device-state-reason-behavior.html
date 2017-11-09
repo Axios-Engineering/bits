@@ -1,0 +1,407 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<script>
+  ((global) => {
+    'use strict';
+
+    // https://developer.gnome.org/NetworkManager/stable/nm-dbus-types.html
+    const REASONS = {
+      none: {
+        value: 0,
+        label: 'none',
+        description: 'No reason given.'
+      },
+      unknown: {
+        value: 1,
+        label: 'unknown',
+        description: 'Unknown error.'
+      },
+      now_managed: {
+        value: 2,
+        label: 'now managed',
+        description: 'Device is now managed.'
+      },
+      now_unmanaged: {
+        value: 3,
+        label: 'now unmanaged',
+        description: 'Device is now unmanaged.'
+      },
+      config_failed: {
+        value: 4,
+        label: 'config failed',
+        description: 'The device could not be readied for configuration.'
+      },
+      ip_config_unavailable: {
+        value: 5,
+        label: 'ip config unavailable',
+        description: 'IP configuration could not be reserved.'
+      },
+      ip_config_expired: {
+        value: 6,
+        label: 'ip config expired',
+        description: 'The IP config is no longer valid.'
+      },
+      no_secrets: {
+        value: 7,
+        label: 'no secrets',
+        description: 'Secrets were required, but not provided.'
+      },
+      supplicant_disconnect: {
+        value: 8,
+        label: 'supplicant disconnect',
+        description: '802.1x supplicant disconnected.'
+      },
+      supplicant_config_failed: {
+        value: 9,
+        label: 'supplicant config failed',
+        description: '802.1x supplicant configuration failed.'
+      },
+      supplicant_failed: {
+        value: 10,
+        label: 'supplicant failed',
+        description: '802.1x supplicant failed.'
+      },
+      supplicant_timeout: {
+        value: 11,
+        label: 'supplicant timeout',
+        description: '802.1x supplicant took too long to authenticate.'
+      },
+      ppp_start_failed: {
+        value: 12,
+        label: 'ppp start failed',
+        description: 'PPP service failed to start.'
+      },
+      ppp_disconnect: {
+        value: 13,
+        label: 'ppp disconnect',
+        description: 'PPP service disconnected.'
+      },
+      ppp_failed: {
+        value: 14,
+        label: 'ppp failed',
+        description: 'PPP failed.'
+      },
+      dhcp_start_failed: {
+        value: 15,
+        label: 'dhcp start failed',
+        description: 'DHCP client failed to start.'
+      },
+      dhcp_error: {
+        value: 16,
+        label: 'dhcp error',
+        description: 'DHCP client error.'
+      },
+      dhcp_failed: {
+        value: 17,
+        label: 'dhcp failed',
+        description: 'DHCP client failed.'
+      },
+      shared_start_failed: {
+        value: 18,
+        label: 'shared start failed',
+        description: 'Shared connection service failed to start.'
+      },
+      shared_failed: {
+        value: 19,
+        label: 'shared failed',
+        description: 'Shared connection service failed.'
+      },
+      autoip_start_failed: {
+        value: 20,
+        label: 'autoip start failed',
+        description: 'AutoIP service failed to start.'
+      },
+      autoip_error: {
+        value: 21,
+        label: 'autoip error',
+        description: 'AutoIP service error.'
+      },
+      autoip_failed: {
+        value: 22,
+        label: 'autoip failed',
+        description: 'AutoIP service failed.'
+      },
+      modem_busy: {
+        value: 23,
+        label: 'modem busy',
+        description: 'The line is busy.'
+      },
+      modem_no_dial_tone: {
+        value: 24,
+        label: 'modem no dial tone',
+        description: 'No dial tone.'
+      },
+      modem_no_carrier: {
+        value: 25,
+        label: 'modem no carrier',
+        description: 'No carrier could be established.'
+      },
+      modem_dial_timeout: {
+        value: 26,
+        label: 'modem dial timeout',
+        description: 'The dialing request timed out.'
+      },
+      modem_dial_failed: {
+        value: 27,
+        label: 'modem dial failed',
+        description: 'The dialing attempt failed.'
+      },
+      modem_init_failed: {
+        value: 28,
+        label: 'modem init failed',
+        description: 'Modem initialization failed.'
+      },
+      gsm_apn_failed: {
+        value: 29,
+        label: 'gsm apn failed',
+        description: 'Failed to select the specified APN.'
+      },
+      gsm_registration_not_searching: {
+        value: 30,
+        label: 'gsm registration not searching',
+        description: 'Not searching for networks.'
+      },
+      gsm_registration_denied: {
+        value: 31,
+        label: 'gsm registration denied',
+        description: 'Network registration denied.'
+      },
+      gsm_registration_timeout: {
+        value: 32,
+        label: 'gsm registration timeout',
+        description: 'Network registration timed out.'
+      },
+      gsm_registration_failed: {
+        value: 33,
+        label: 'gsm registration failed',
+        description: 'Failed to register with the requested network.'
+      },
+      gsm_pin_check_failed: {
+        value: 34,
+        label: 'gsm pin check failed',
+        description: 'PIN check failed.'
+      },
+      firmware_missing: {
+        value: 35,
+        label: 'firmware missing',
+        description: 'Necessary firmware for the device may be missing.'
+      },
+      removed: {
+        value: 36,
+        label: 'removed',
+        description: 'The device was removed.'
+      },
+      sleeping: {
+        value: 37,
+        label: 'sleeping',
+        description: 'NetworkManager went to sleep.'
+      },
+      connection_removed: {
+        value: 38,
+        label: 'connection removed',
+        description: 'The device\'s active connection disappeared.'
+      },
+      user_requested: {
+        value: 39,
+        label: 'user requested',
+        description: 'Device disconnected by user or client.'
+      },
+      carrier: {
+        value: 40,
+        label: 'carrier',
+        description: 'Carrier/link changed.'
+      },
+      connection_assumed: {
+        value: 41,
+        label: 'connection assumed',
+        description: 'The device\'s existing connection was assumed.'
+      },
+      supplicant_available: {
+        value: 42,
+        label: 'supplicant available',
+        description: 'The supplicant is now available.'
+      },
+      modem_not_found: {
+        value: 43,
+        label: 'modem not found',
+        description: 'The modem could not be found.'
+      },
+      bt_failed: {
+        value: 44,
+        label: 'bt failed',
+        description: 'The Bluetooth connection failed or timed out.'
+      },
+      gsm_sim_not_inserted: {
+        value: 45,
+        label: 'gsm sim not inserted',
+        description: 'GSM Modem\'s SIM Card not inserted.'
+      },
+      gsm_sim_pin_required: {
+        value: 46,
+        label: 'gsm sim pin required',
+        description: 'GSM Modem\'s SIM Pin required.'
+      },
+      gsm_sim_puk_required: {
+        value: 47,
+        label: 'gsm sim puk required',
+        description: 'GSM Modem\'s SIM Puk required.'
+      },
+      gsm_sim_wrong: {
+        value: 48,
+        label: 'gsm sim wrong',
+        description: 'GSM Modem\'s SIM wrong.'
+      },
+      infiniband_mode: {
+        value: 49,
+        label: 'infiniband mode',
+        description: 'InfiniBand device does not support connected mode.'
+      },
+      dependency_failed: {
+        value: 50,
+        label: 'dependency failed',
+        description: 'A dependency of the connection failed.'
+      },
+      br2684_failed: {
+        value: 51,
+        label: 'br2684 failed',
+        description: 'Problem with the RFC 2684 Ethernet over ADSL bridge.'
+      },
+      modem_manager_unavailable: {
+        value: 52,
+        label: 'modem manager unavailable',
+        description: 'ModemManager not running.'
+      },
+      ssid_not_found: {
+        value: 53,
+        label: 'ssid not found',
+        description: 'The Wi-Fi network could not be found.'
+      },
+      secondary_connection_failed: {
+        value: 54,
+        label: 'secondary connection failed',
+        description: 'A secondary connection of the base connection failed.'
+      },
+      dcb_fcoe_failed: {
+        value: 55,
+        label: 'dcb fcoe failed',
+        description: 'DCB or FCoE setup failed.'
+      },
+      teamd_control_failed: {
+        value: 56,
+        label: 'teamd control failed',
+        description: 'teamd control failed.'
+      },
+      modem_failed: {
+        value: 57,
+        label: 'modem failed',
+        description: 'Modem failed or no longer available.'
+      },
+      modem_available: {
+        value: 58,
+        label: 'modem available',
+        description: 'Modem now ready and available.'
+      },
+      sim_pin_incorrect: {
+        value: 59,
+        label: 'sim pin incorrect',
+        description: 'SIM PIN was incorrect.'
+      },
+      new_activation: {
+        value: 60,
+        label: 'new activation',
+        description: 'New connection activation was enqueued.'
+      },
+      parent_changed: {
+        value: 61,
+        label: 'parent changed',
+        description: 'The device\'s parent changed.'
+      },
+      parent_managed_changed: {
+        value: 62,
+        label: 'parent managed changed',
+        description: 'The device parent\'s management changed.'
+      }
+    };
+
+    class DeviceStateReasons {
+      static get ALL() {
+        return REASONS;
+      }
+
+      static get KEYS() {
+        return Object.keys(this.ALL);
+      }
+
+      static getByKey(key) {
+        return this.ALL[key];
+      }
+
+      static getAttrByKey(key, attr) {
+        const obj = this.getByKey(key);
+        if(!obj) return obj;
+        return obj[attr];
+      }
+
+      static getOneWhereAttrIsValue(attr, val) {
+        const key = this.KEYS.find(key => this.ALL[key][attr] === val);
+        if(!key) return key;
+        return this.getByKey(key);
+      }
+    }
+
+    global.Bits = global.Bits || {};
+
+    global.Bits.NetworkManagerDeviceStateReasonBehaviorImpl = {
+      properties: {
+        reasons: {
+          type: Object,
+          readOnly: true,
+          value: Object.assign({}, DeviceStateReasons.ALL)
+        },
+        keys: {
+          type: Array,
+          readOnly: true,
+          value: Array.from(DeviceStateReasons.KEYS)
+        }
+      },
+
+      getReasonByKey: function(key='') {
+        return DeviceStateReasons.getByKey(key);
+      },
+
+      getReasonValueByKey: function(key='') {
+        return DeviceStateReasons.getAttrByKey(key, 'value');
+      },
+
+      getReasonLabelByKey: function(key='') {
+        return DeviceStateReasons.getAttrByKey(key, 'label');
+      },
+
+      getReasonDescriptionByKey: function(key='') {
+        return DeviceStateReasons.getAttrByKey(key, 'description');
+      },
+
+      getReasonByValue: function(value) {
+        return DeviceStateReasons.getOneWhereAttrIsValue('value', value);
+      },
+    };
+
+    global.Bits.NetworkManagerDeviceStateReasonBehavior = [
+      global.Bits.NetworkManagerDeviceStateReasonBehaviorImpl
+    ];
+
+  })(this);
+</script>

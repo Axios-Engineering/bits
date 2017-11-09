@@ -1,0 +1,107 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../network-manager-behaviors/network-manager-invalid-behavior.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../network-manager-devices/network-manager-devices.html">
+
+<dom-module id="network-manager-device-input">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <network-manager-devices
+      type="[[type]]"
+      filtered-items="{{items}}">
+    </network-manager-devices>
+
+    <vaadin-combo-box
+      tabindex="0"
+      items="[[items]]"
+      item-label-path="Interface"
+      item-value-path="Interface"
+      value="{{value}}"
+      label="[[placeholder]]"
+      error-message="[[errorMessage]]"
+      disabled="[[disabled]]"
+      readonly="[[readonly]]"
+      required="[[required]]"
+      invalid="{{_invalid}}"
+      no-label-float="[[noLabelFloat]]"
+      auto-validate>
+    </vaadin-combo-box>
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      const LABEL = {
+        PLACEHOLDER: 'Device',
+        ERROR_MSG: 'Please select a device.'
+      };
+
+      Polymer({
+        is: 'network-manager-device-input',
+
+        behaviors: [global.Bits.NetworkManagerInvalidBehavior],
+
+        properties: {
+          placeholder: {
+            type: String,
+            value: LABEL.PLACEHOLDER
+          },
+          errorMessage: {
+            type: String,
+            value: LABEL.ERROR_MSG
+          },
+          noLabelFloat: {
+            type: Boolean,
+            value: false
+          },
+          value: {
+            type: String,
+            notify: true
+          },
+          type: {
+            type: String,
+            value: 'all'
+          }
+        },
+
+        observers: [
+          '_observeConnectionUidAndItems(connectionUid, items.*)',
+        ],
+
+        _observeConnectionUidAndItems: function(connectionUid) {
+          if(Array.isArray(this.items) && connectionUid) {
+            const device = this.items.find(item => item.AvailableConnections.includes(connectionUid));
+
+            if(device) {
+              this.set('value', device.Interface);
+            }
+          }
+        }
+
+      });
+
+    })(this);
+  </script>
+</dom-module>

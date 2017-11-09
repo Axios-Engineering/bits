@@ -1,0 +1,81 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<script>
+  ((global) => {
+    'use strict';
+
+    global.Bits = global.Bits || {};
+
+    global.Bits.NetworkManagerInvalidBehaviorImpl = {
+      properties: {
+        _invalid: {
+          type: Boolean
+        },
+        invalid: {
+          type: Boolean,
+          readOnly: true,
+          notify: true
+        },
+        required: {
+          type: Boolean
+        }
+      },
+
+      observers: [
+        '_observeValue(value)',
+        '_observeInvalid(_invalid)',
+        '_observeRequired(required)',
+      ],
+
+      _observeValue: function(value) {
+        this._debounceInvalid();
+      },
+
+      _observeInvalid: function(_invalid) {
+        this._debounceInvalid();
+      },
+
+      _observeRequired: function(required) {
+        this._debounceInvalid();
+      },
+
+      _debounceInvalid: function() {
+        const jobName = 'networkManagerInvalidBehavior#calculate-invalid';
+
+        this.cancelDebouncer(jobName);
+        this.debounce(jobName, () => this._calculateInvalid());
+      },
+
+      _calculateInvalid: function() {
+        let invalid = this._invalid;
+
+        if(!invalid && this.required && !this._hasValue()) {
+          invalid = true;
+        }
+
+        this._setInvalid(invalid);
+      },
+
+      _hasValue: function() {
+        return (this.value !== undefined && String(this.value).length > 0);
+      }
+    };
+
+    global.Bits.NetworkManagerInvalidBehavior = [
+      global.Bits.NetworkManagerInvalidBehaviorImpl
+    ];
+  })(this);
+</script>

@@ -1,0 +1,74 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/iron-resizable-behavior/iron-resizable-behavior.html">
+<!-- bplint-enable no-unused-import -->
+<link rel="import" href="../network-manager-app/network-manager-item.html">
+<link rel="import" href="../network-manager-inputs/network-manager-wifi-input.html">
+
+<dom-module id="network-manager-wifi-item">
+  <template>
+    <style>
+      :host {
+        display: block;
+        height: 100%;
+      }
+    </style>
+
+    <network-manager-item
+      x-back-href="/network-manager/wifi/"
+      default-title="New Wi-Fi Connection"
+      name="[[item.connection.id]]"
+      invalid="[[invalid]]"
+      readonly="{{readonly}}"
+      is-new="[[isNew]]"
+      item-id="[[itemId]]"
+      item="{{item}}">
+      <network-manager-wifi-input
+        item="{{item}}"
+        invalid="{{invalid}}"
+        readonly="[[readonly]]">
+      </network-manager-wifi-input>
+    </network-manager-item>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      Polymer({
+        is: 'network-manager-wifi-item',
+
+        behaviors: [Polymer.IronResizableBehavior],
+
+        properties: {
+          readonly: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          isNew: {
+            type: Boolean,
+            value: false,
+            notify: true
+          }
+        },
+      });
+
+    })(this);
+  </script>
+</dom-module>

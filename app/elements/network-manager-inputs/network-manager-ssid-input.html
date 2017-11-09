@@ -1,0 +1,242 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../network-manager-behaviors/network-manager-invalid-behavior.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../../bower_components/vaadin-combo-box/vaadin-combo-box.html">
+<link rel="import" href="../base-shared-styles/base-shared-styles.html">
+<link rel="import" href="../base-system/base-system.html">
+<link rel="import" href="../network-manager-devices/network-manager-devices.html">
+
+<dom-module id="network-manager-ssid-input">
+  <template>
+    <style include="base-shared-styles">
+      :host {
+        display: block;
+      }
+
+      vaadin-combo-box[hidden] {
+        display: none;
+      }
+
+      paper-checkbox {
+        margin-top: 12px;
+      }
+
+      .justify {
+        @apply --layout-horizontal;
+        @apply --layout-end-justified;
+      }
+
+      .push {
+        @apply --layout-flex;
+      }
+    </style>
+
+    <base-system
+      bits-id="{{bitsId}}">
+    </base-system>
+
+    <network-manager-devices
+      id="devices"
+      type="wifi"
+      filtered-items="{{devices}}">
+    </network-manager-devices>
+
+    <div>
+      <vaadin-combo-box
+        tabindex="0"
+        items="[[items]]"
+        value="{{value}}"
+        label="[[comboPlaceholder]]"
+        error-message="[[comboErrorMessage]]"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        required="[[required]]"
+        invalid="{{_invalid}}"
+        no-label-float="[[noLabelFloat]]"
+        auto-validate
+        hidden="[[ssidIsHidden]]">
+      </vaadin-combo-box>
+      <paper-input
+        tabindex="0"
+        label="[[inputPlaceholder]]"
+        value="{{value}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        required="[[required]]"
+        invalid="{{_invalid}}"
+        error-message="[[inputErrorMessage]]"
+        no-label-float="[[noLabelFloat]]"
+        auto-validate
+        hidden="[[!ssidIsHidden]]">
+      </paper-input>
+    </div>
+    <div class="justify">
+      <paper-checkbox
+        hidden="[[hideManualToggle]]"
+        checked="{{ssidIsHidden}}"
+        disabled="[[_calculateDisabled(disabled, readonly, interfaceName, isHotspot)]]">
+        Manually enter the SSID.
+      </paper-checkbox>
+      <span class="push"></span>
+      <paper-button
+        class="primary-btn-light"
+        hidden="[[_calculateDefaultDisabled(isHotspot, hideManualToggle)]]"
+        disabled="[[!isHotspot]]"
+        on-tap="_onTapDefault">
+        Default
+      </paper-button>
+    </div>
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      const LABEL = {
+        COMBO: {
+          PLACEHOLDER: 'SSID',
+          ERROR_MSG: 'Please select a SSID.'
+        },
+        INPUT: {
+          PLACEHOLDER: 'SSID',
+          ERROR_MSG: 'Please enter a SSID.'
+        }
+      };
+
+      Polymer({
+        is: 'network-manager-ssid-input',
+
+        behaviors: [global.Bits.NetworkManagerInvalidBehavior],
+
+        properties: {
+          placeholder: {
+            type: String,
+            observer: '_observePlaceholder'
+          },
+          errorMessage: {
+            type: String,
+            observer: '_observeErrorMessage'
+          },
+          comboPlaceholder: {
+            type: String,
+            value: LABEL.COMBO.PLACEHOLDER
+          },
+          comboErrorMessage: {
+            type: String,
+            value: LABEL.COMBO.ERROR_MSG
+          },
+          inputPlaceholder: {
+            type: String,
+            value: LABEL.INPUT.PLACEHOLDER
+          },
+          inputErrorMessage: {
+            type: String,
+            value: LABEL.INPUT.ERROR_MSG
+          },
+          noLabelFloat: {
+            type: Boolean,
+            value: false
+          },
+          items: {
+            type: Array,
+            computed: '_computeItems(interfaceName, devices)'
+          },
+          value: {
+            type: String,
+            notify: true
+          },
+          ssidIsHidden: {
+            type: Boolean,
+            value: false
+          },
+          isHotspot: {
+            type: Boolean,
+            value: false,
+            observer: '_observeIsHotspot'
+          },
+          hideManualToggle: {
+            type: Boolean,
+            value: false
+          }
+        },
+
+        _computeItems: function(interfaceName, devices) {
+          let items = [];
+
+          if(!!interfaceName && Array.isArray(devices)) {
+            const device = devices.find(device => device.Interface === interfaceName);
+
+            if(device && Array.isArray(device.scan)) {
+              items = [...new Set(device.scan.map(scan => scan.ssid).filter(ssid => String(ssid).trim().length > 0))].sort();
+            }
+          }
+
+          return items;
+        },
+
+        _observePlaceholder: function(placeholder) {
+          if(placeholder) {
+            this.set('comboPlaceholder', placeholder);
+            this.set('inputPlaceholder', placeholder);
+          }
+        },
+
+        _observeErrorMessage: function(errorMessage) {
+          if(errorMessage) {
+            this.set('comboErrorMessage', errorMessage);
+            this.set('inputErrorMessage', errorMessage);
+          }
+        },
+
+        _observeIsHotspot: function(isHotspot) {
+          if(isHotspot) this.set('ssidIsHidden', true);
+        },
+
+        _observeIsHotspotAndValueAndItems: function(isHotspot, value) {
+          if(!isHotspot && Array.isArray(this.items) && !this.items.includes(value)) {
+            this.set('ssidIsHidden', true);
+          }
+        },
+
+        observers: [
+          '_observeIsHotspotAndValueAndItems(isHotspot, value, items.*)'
+        ],
+
+        _onTapDefault: function() {
+          if(this.bitsId && this.isHotspot) {
+            this.set('ssidIsHidden', true);
+            this.set('value', this.bitsId);
+          }
+        },
+
+        _calculateDisabled: function(disabled, readonly, interfaceName, isHotspot) {
+          return disabled || readonly || !interfaceName || isHotspot;
+        },
+
+        _calculateDefaultDisabled: function(isHotspot, hideManualToggle) {
+          return !isHotspot || hideManualToggle;
+        }
+
+      });
+
+    })(this);
+  </script>
+</dom-module>
