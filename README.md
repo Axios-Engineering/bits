@@ -10,6 +10,7 @@
 
 ``` bash
 sudo apt install network-manager libdbus-1-dev
-npm install -g bower
+systemctl start NetworkManager
+systemctl enable NetworkManager
 npm run build
 ```
