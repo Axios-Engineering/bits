@@ -1,0 +1,178 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../base-layout/base-single-grid-item-wrapper/base-single-grid-item-wrapper.html">
+<link rel="import" href="../base-shared-styles/base-shared-styles.html">
+<link rel="import" href="./network-manager-name-input.html">
+<link rel="import" href="./network-manager-device-input.html">
+<link rel="import" href="./network-manager-priority-input.html">
+<link rel="import" href="./network-manager-autoconnect-input.html">
+<link rel="import" href="./network-manager-password-input.html">
+
+<dom-module id="network-manager-cellular-input">
+  <template>
+    <style include="base-shared-styles">
+      :host {
+        display: block;
+      }
+
+      .push-down {
+        margin-top: 16px;
+      }
+
+      .push {
+        @apply --layout-flex;
+      }
+    </style>
+
+    <base-single-grid-item-wrapper
+      b-title="Cellular Configuration">
+      <network-manager-name-input
+        value="{{item.connection.id}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        invalid="{{invalidList.name}}"
+        required>
+      </network-manager-name-input>
+      <network-manager-device-input
+        value="{{item.connection.interface-name}}"
+        type="cellular"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        connection-uid="[[item.uid]]">
+      </network-manager-device-input>
+      <network-manager-priority-input
+        value="{{item.connection.autoconnect-priority}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]">
+      </network-manager-priority-input>
+      <div class="line push-down">
+        <span class="push"></span>
+        <network-manager-autoconnect-input
+          checked="{{item.connection.autoconnect}}"
+          disabled="[[disabled]]"
+          readonly="[[readonly]]">
+        </network-manager-autoconnect-input>
+      </div>
+      <network-manager-name-input
+        placeholder="Number"
+        value="{{item.gsm.number}}"
+        invalid="{{invalidList.number}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        required>
+      </network-manager-name-input>
+      <network-manager-name-input
+        placeholder="APN"
+        value="{{item.gsm.apn}}"
+        invalid="{{invalidList.apn}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]"
+        required>
+      </network-manager-name-input>
+      <network-manager-name-input
+        placeholder="Username"
+        value="{{item.gsm.username}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]">
+      </network-manager-name-input>
+      <network-manager-password-input
+        value="{{item.gsm.psk}}"
+        disabled="[[disabled]]"
+        readonly="[[readonly]]">
+      </network-manager-password-input>
+    </base-single-grid-item-wrapper>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      Polymer({
+        is: 'network-manager-cellular-input',
+
+        properties: {
+          disabled: {
+            type: Boolean,
+            value: false
+          },
+          readonly: {
+            type: Boolean,
+            value: false
+          },
+          invalid: {
+            type: Boolean,
+            value: true,
+            notify: true
+          },
+          invalidList: {
+            type: Object,
+            value: Object.assign({})
+          },
+          item: {
+            type: Object,
+            value: Object.assign({}),
+            notify: true
+          }
+        },
+
+        _observeItemData: function() {
+          if(!this.item) return;
+
+          if(Object.keys(this.item).length === 0) {
+            this._resetItem();
+          }
+        },
+
+        _observeItemInvalid: function() {
+          const jobName = 'NetworkManagerCellularInput#observe-item-invalid';
+          this.cancelDebouncer(jobName);
+          this.debounce(jobName, () => this._calculateValidity(), 200);
+        },
+
+        observers: [
+          '_observeItemData(item.*)',
+          '_observeItemInvalid(invalidList.*)'
+        ],
+
+        _calculateValidity: function() {
+          let invalid = this._invalidListHasAnyInvalid(this.invalidList);
+
+          this.set('invalid', invalid);
+        },
+
+        _invalidListHasAnyInvalid: function(list) {
+          if(!list) return true;
+
+          return Object.keys(list).some(key => list[key]);
+        },
+
+        _resetItem: function() {
+          this.set('item', Object.assign({}, {
+            connection: {autoconnect: false},
+            ipv4: {method: 'auto'},
+            ipv6: {method: 'auto'},
+            gsm: {number: '*99#', 'password-flags': 1, apn: ''}
+          }));
+        }
+
+      });
+
+    })(this);
+  </script>
+</dom-module>

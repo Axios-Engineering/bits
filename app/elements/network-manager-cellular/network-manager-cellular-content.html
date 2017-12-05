@@ -27,11 +27,9 @@ limitations under the License.
 
     <network-manager-page
       route-path="cellular"
-      item-id="{{itemId}}">
-      <div page-name="list"></div>
-      <div page-name="create"></div>
-      <div page-name="detail"></div>
+      pages="[[pages]]">
     </network-manager-page>
+
   </template>
   <script>
     ((global) => {
@@ -39,6 +37,39 @@ limitations under the License.
 
       Polymer({
         is: 'network-manager-cellular-content',
+
+        properties: {
+          pages: {
+            type: Array,
+            value: () => {
+              return [{
+                name: 'list',
+                element: 'network-manager-list',
+                import: '/elements/network-manager-app/network-manager-list.html',
+                properties: {
+                  type: 'cellular',
+                  xTitle: 'Cellular Connections',
+                  urlPart: 'cellular'
+                }
+              },{
+                name: 'create',
+                element: 'network-manager-cellular-item',
+                import: '/elements/network-manager-cellular/network-manager-cellular-item.html',
+                properties: {
+                  isNew: true
+                }
+              },{
+                name: 'detail',
+                element: 'network-manager-cellular-item',
+                import: '/elements/network-manager-cellular/network-manager-cellular-item.html',
+                properties: {
+                  readonly: true
+                }
+              }];
+            }
+          }
+        }
+
       });
 
     })(this);
