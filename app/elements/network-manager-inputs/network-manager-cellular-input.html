@@ -20,7 +20,6 @@ limitations under the License.
 <link rel="import" href="./network-manager-device-input.html">
 <link rel="import" href="./network-manager-priority-input.html">
 <link rel="import" href="./network-manager-autoconnect-input.html">
-<link rel="import" href="./network-manager-password-input.html">
 
 <dom-module id="network-manager-cellular-input">
   <template>
@@ -50,9 +49,11 @@ limitations under the License.
       <network-manager-device-input
         value="{{item.connection.interface-name}}"
         type="cellular"
+        invalid="{{invalidList.device}}"
         disabled="[[disabled]]"
         readonly="[[readonly]]"
-        connection-uid="[[item.uid]]">
+        connection-uid="[[item.uid]]"
+        required>
       </network-manager-device-input>
       <network-manager-priority-input
         value="{{item.connection.autoconnect-priority}}"
