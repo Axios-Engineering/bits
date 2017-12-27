@@ -99,13 +99,11 @@ limitations under the License.
       function deepSearch(regex, item) {
         let match = false;
 
-        if(Array.isArray(item)) {
-          match = item.some(item => deepSearch(regex, item));
-        }
-        else if(typeof item === 'object' && Array.isArray(Object.keys(item))) {
-          match = Object.keys(item).some(key => deepSearch(regex, item[key]));
-        }
-        else {
+        if (Array.isArray(item)) {
+          match = item.some((item) => deepSearch(regex, item));
+        } else if (typeof item === 'object' && Array.isArray(Object.keys(item))) {
+          match = Object.keys(item).some((key) => deepSearch(regex, item[key]));
+        } else {
           match = regex.test(String(item));
         }
 
@@ -145,7 +143,7 @@ limitations under the License.
         },
 
         _observeItems: function() {
-          if(Array.isArray(this.items)) {
+          if (Array.isArray(this.items)) {
             this.items.sort(sortByConnectionId);
           }
         },
@@ -160,7 +158,7 @@ limitations under the License.
 
         _filter: function(filterVal) {
           return function(item) {
-            if(filterVal.length < 1) return item;
+            if (filterVal.length < 1) return item;
             const regex = new RegExp(filterVal, 'i');
 
             return deepSearch(regex, item);
@@ -168,7 +166,6 @@ limitations under the License.
         }
 
       });
-
     })(this);
   </script>
 </dom-module>

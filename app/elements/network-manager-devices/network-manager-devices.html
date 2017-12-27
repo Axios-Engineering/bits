@@ -65,10 +65,10 @@ limitations under the License.
 
     _computeFilteredItems: function(type) {
       type = String(type).toUpperCase();
-      if(type === 'ALL') return Array.from(this.items);
+      if (type === 'ALL') return Array.from(this.items);
       const deviceType = DEVICE_TYPES[type];
-      if(!Array.isArray(this.items) || !deviceType) return [];
-      return this.items.filter(item => (item.DeviceType === deviceType));
+      if (!Array.isArray(this.items) || !deviceType) return [];
+      return this.items.filter((item) => (item.DeviceType === deviceType));
     },
 
     getTypes: function() {

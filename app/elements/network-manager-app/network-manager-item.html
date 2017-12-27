@@ -129,19 +129,18 @@ limitations under the License.
       };
 
       function deepRemoveEmpty(obj) {
-        if(Array.isArray(obj)) {
-          obj = obj.filter(item => !deepRemoveEmpty(item));
-          if(obj.length === 0) {
+        if (Array.isArray(obj)) {
+          obj = obj.filter((item) => !deepRemoveEmpty(item));
+          if (obj.length === 0) {
             return true;
           }
-        }
-        else if(typeof obj === 'object') {
-          Object.keys(obj).forEach(key => {
-            if(deepRemoveEmpty(obj[key])) {
+        } else if (typeof obj === 'object') {
+          Object.keys(obj).forEach((key) => {
+            if (deepRemoveEmpty(obj[key])) {
               delete obj[key];
             }
           });
-          if(Object.keys(obj).length === 0) {
+          if (Object.keys(obj).length === 0) {
             return true;
           }
         }
@@ -194,14 +193,13 @@ limitations under the License.
         },
 
         _observeItemId: function(itemId) {
-          if(itemId !== undefined && itemId !== null) {
-            if(itemId !== 'create') {
+          if (itemId !== undefined && itemId !== null) {
+            if (itemId !== 'create') {
               this.set('readonly', true);
               this.set('invalid', true);
               this.set('isNew', false);
               this.getItemById(itemId);
-            }
-            else {
+            } else {
               this.set('readonly', false);
               this.set('invalid', true);
               this.set('isNew', true);
@@ -221,15 +219,15 @@ limitations under the License.
         },
 
         _onBaseCrudItemUpdated: function(event, detail) {
-          if(this._itemHasBeenUpdated(detail)) {
+          if (this._itemHasBeenUpdated(detail)) {
             this.set('item', detail.items.shift());
           }
         },
 
         _onBaseCrudItemDeleted: function(event, detail) {
-          if(this._itemHasBeenUpdated(detail)) {
+          if (this._itemHasBeenUpdated(detail)) {
             this.async(() => {
-              if(this.deletedState === false) {
+              if (this.deletedState === false) {
                 this.fire('network-manager-show-list-page');
                 this.fire('network-manager-show-message', DEFAULTS.ITEM_NOT_FOUND);
               }
@@ -239,10 +237,9 @@ limitations under the License.
 
         _onTapSaveItem: function() {
           if (!this.invalid) {
-            if(this.item.hasOwnProperty('id') && this.item.id > -1) {
+            if (this.item.hasOwnProperty('id') && this.item.id > -1) {
               this.updateItem();
-            }
-            else {
+            } else {
               this.createItem();
             }
           }
@@ -266,7 +263,7 @@ limitations under the License.
         },
 
         _calculateAnyTrue: function(...args) {
-          return args.some(arg => !!arg);
+          return args.some((arg) => !!arg);
         },
 
         _itemHasBeenUpdated: function(detail) {
@@ -292,36 +289,36 @@ limitations under the License.
         },
 
         _sanitizeItem: function() {
-          if(Array.isArray(this.item.ipv4.dns)) {
-            this.item.ipv4.dns = [...new Set(this.item.ipv4.dns.filter(item => !!item))];
+          if (Array.isArray(this.item.ipv4.dns)) {
+            this.item.ipv4.dns = [...new Set(this.item.ipv4.dns.filter((item) => !!item))];
           }
 
-          if(Array.isArray(this.item.ipv4['address-data'])) {
-            this.item.ipv4['address-data'] = this.item.ipv4['address-data'].filter(item => !!Object.keys(item).length);
+          if (Array.isArray(this.item.ipv4['address-data'])) {
+            this.item.ipv4['address-data'] = this.item.ipv4['address-data'].filter((item) => !!Object.keys(item).length);
           }
 
-          if(this.item.connection.hasOwnProperty('autoconnect-priority') && typeof this.item.connection['autoconnect-priority'] === "string") {
+          if (this.item.connection.hasOwnProperty('autoconnect-priority') && typeof this.item.connection['autoconnect-priority'] === 'string') {
             this.item.connection['autoconnect-priority'] = parseFloat(this.item.connection['autoconnect-priority']);
           }
 
-          if(this.item.connection.hasOwnProperty('interface-name') && this.item.connection['interface-name'].length === 0) {
+          if (this.item.connection.hasOwnProperty('interface-name') && this.item.connection['interface-name'].length === 0) {
             delete this.item.connection['interface-name'];
           }
 
-          if(this.item['802-11-wireless-security'] && Object.keys(this.item['802-11-wireless-security']).length === 0) {
+          if (this.item['802-11-wireless-security'] && Object.keys(this.item['802-11-wireless-security']).length === 0) {
             delete this.item['802-11-wireless-security'];
           }
 
-          Object.keys(this.item).forEach(key => deepRemoveEmpty(this.item[key]));
+          Object.keys(this.item).forEach((key) => deepRemoveEmpty(this.item[key]));
         },
 
         createItem: function() {
           this._sanitizeItem();
 
           return this.$.connections.create(this.item)
-          .then(item => this.fire('network-manager-show-detail-page', item.id))
+          .then((item) => this.fire('network-manager-show-detail-page', item.id))
           .then(() => this.fire('network-manager-show-message', DEFAULTS.CREATE_SUCCESS))
-          .catch(err => this.fire('network-manager-show-message', this._parseError(err)));
+          .catch((err) => this.fire('network-manager-show-message', this._parseError(err)));
         },
 
         updateItem: function() {
@@ -329,7 +326,7 @@ limitations under the License.
 
           return this.$.connections.update(this.item.id, this.item)
           .then(() => this.fire('network-manager-show-message', DEFAULTS.UPDATE_SUCCESS))
-          .catch(err => this.fire('network-manager-show-message', this._parseError(err)))
+          .catch((err) => this.fire('network-manager-show-message', this._parseError(err)))
           .then(() => this.set('readonly', true))
           .then(() => this.getItemById(this.item.id));
         },
@@ -338,23 +335,22 @@ limitations under the License.
           this.set('deletedState', true);
 
           return this.$.connections.delete(this.item.id)
-          .then(item => this.fire('network-manager-show-list-page'))
+          .then((item) => this.fire('network-manager-show-list-page'))
           .then(() => this.fire('network-manager-show-message', DEFAULTS.DELETE_SUCCESS))
-          .catch(err => this.fire('network-manager-show-message', this._parseError(err)))
+          .catch((err) => this.fire('network-manager-show-message', this._parseError(err)))
           .then(() => this.set('deletedState', false));
         },
 
         getItemById: function(id) {
           this.$.connections.get(Number(id))
-          .then(item => this.set('item', item))
-          .catch(err => {
+          .then((item) => this.set('item', item))
+          .catch((err) => {
             this.fire('network-manager-show-list-page');
             this.fire('network-manager-show-message', DEFAULTS.ITEM_NOT_FOUND);
           });
         }
 
      });
-
     })(this);
   </script>
 </dom-module>

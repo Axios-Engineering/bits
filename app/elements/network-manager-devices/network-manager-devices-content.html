@@ -127,16 +127,13 @@ limitations under the License.
       'use strict';
 
       function sortByManagedStateAndInterface(itemA, itemB) {
-        if(itemA.Managed && itemB.Managed) {
+        if (itemA.Managed && itemB.Managed) {
           return sortByStateAndInterface(itemA, itemB);
-        }
-        else if (itemA.Managed) {
+        } else if (itemA.Managed) {
           return -1;
-        }
-        else if (itemB.Managed) {
+        } else if (itemB.Managed) {
           return 1;
-        }
-        else {
+        } else {
           return sortByStateAndInterface(itemA, itemB);
         }
       }
@@ -144,11 +141,9 @@ limitations under the License.
       function sortByStateAndInterface(itemA, itemB) {
         if (itemA.State > itemB.state) {
           return -1;
-        }
-        else if (itemA.State < itemB.State) {
+        } else if (itemA.State < itemB.State) {
           return 1;
-        }
-        else {
+        } else {
           return sortByInterface(itemA, itemB);
         }
       }
@@ -178,7 +173,7 @@ limitations under the License.
         },
 
         _computeItems: function() {
-          if(!Array.isArray(this.devices)) return [];
+          if (!Array.isArray(this.devices)) return [];
 
           return Array.from(this.devices).sort(sortByManagedStateAndInterface);
         },
@@ -186,10 +181,9 @@ limitations under the License.
         _onTapToggleManaged: function(event, detail) {
           const item = event.model.item;
 
-          if(item.Managed) {
+          if (item.Managed) {
             this.$.devices.unmanage(item);
-          }
-          else {
+          } else {
             this.$.devices.manage(item);
           }
         },
@@ -197,28 +191,27 @@ limitations under the License.
         _calculateDeviceType: function(value) {
           let label = '--';
           const obj = this.$.deviceType.getTypeByValue(value);
-          if(obj) label = obj.label;
+          if (obj) label = obj.label;
           return label;
         },
 
         _calculateDeviceState: function(value) {
           let label = '--';
           const obj = this.$.deviceState.getStateByValue(value);
-          if(obj) label = obj.label;
+          if (obj) label = obj.label;
           return label;
         },
 
         _calculateDeviceStateReason: function(state, stateReason) {
           let description = '';
-          if(stateReason && stateReason[state]) { // purposely let a value of zero be false
+          if (stateReason && stateReason[state]) { // purposely let a value of zero be false
             const obj = this.$.deviceStateReason.getReasonByValue(stateReason[state]);
-            if(obj) description = obj.description;
+            if (obj) description = obj.description;
           }
           return description;
         }
 
       });
-
     })(this);
   </script>
 </dom-module>

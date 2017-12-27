@@ -11,7 +11,7 @@
   "scripts": {
     "bits:install": "yarn --prod && npm run bower:install:prod",
     "polymerLint": "polymer-lint --rules component-name-matches-filename,no-missing-import,no-unused-import,one-component,style-inside-template ./app/elements",
-    "lint": "eslint --fix ./ && npm run polymerLint",
+    "lint": "eslint --ext js,html --fix ./ && npm run polymerLint",
     "test": "mocha --timeout 5000 test/*.js test/**/*.js",
     "bower:install": "bower install --allow-root",
     "bower:install:prod": "bower install --prod --allow-root",

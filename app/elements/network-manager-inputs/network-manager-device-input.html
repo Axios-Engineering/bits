@@ -91,17 +91,16 @@ limitations under the License.
         ],
 
         _observeConnectionUidAndItems: function(connectionUid) {
-          if(Array.isArray(this.items) && connectionUid) {
-            const device = this.items.find(item => item.AvailableConnections.includes(connectionUid));
+          if (Array.isArray(this.items) && connectionUid) {
+            const device = this.items.find((item) => item.AvailableConnections.includes(connectionUid));
 
-            if(device) {
+            if (device) {
               this.set('value', device.Interface);
             }
           }
         }
 
       });
-
     })(this);
   </script>
 </dom-module>

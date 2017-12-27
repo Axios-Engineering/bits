@@ -133,16 +133,13 @@ limitations under the License.
       'use strict';
 
       function sortByActiveAndConnectionId(itemA, itemB) {
-        if(itemA.active && itemB.active) {
+        if (itemA.active && itemB.active) {
           return sortByConnectionId(itemA, itemB);
-        }
-        else if (itemA.active) {
+        } else if (itemA.active) {
           return -1;
-        }
-        else if (itemB.active) {
+        } else if (itemB.active) {
           return 1;
-        }
-        else {
+        } else {
           return sortByConnectionId(itemA, itemB);
         }
       }
@@ -178,30 +175,29 @@ limitations under the License.
         __setItems: function() {
           let items = [];
 
-          if(Array.isArray(this.connections)) {
+          if (Array.isArray(this.connections)) {
             const supported = this.$.connections.getTypes();
             const supportedKeys = Object.keys(supported);
-            const supportedVals = supportedKeys.map(key => supported[key]);
+            const supportedVals = supportedKeys.map((key) => supported[key]);
 
             let appliedConnections = [];
-            if(Array.isArray(this.devices)) {
-              appliedConnections = this.devices.filter(device => device.AppliedConnection.length > 0).map(device => device.AppliedConnection[0]);
+            if (Array.isArray(this.devices)) {
+              appliedConnections = this.devices.filter((device) => device.AppliedConnection.length > 0).map((device) => device.AppliedConnection[0]);
             }
 
-            items = this.connections.filter(item => supportedVals.includes(item.connection.type))
-              .map(item => Object.assign(item, {active: appliedConnections.some(appliedConnection => appliedConnection.connection.uuid === item.connection.uuid)}));
+            items = this.connections.filter((item) => supportedVals.includes(item.connection.type))
+              .map((item) => Object.assign(item, {active: appliedConnections.some((appliedConnection) => appliedConnection.connection.uuid === item.connection.uuid)}));
             items.sort(sortByActiveAndConnectionId);
 
 
-            items = items.map(item => {
-              const routePath = supportedKeys.find(key => supported[key] === item.connection.type).toLowerCase();
-              const state = this.stateList.find(state => state.id === item.id);
+            items = items.map((item) => {
+              const routePath = supportedKeys.find((key) => supported[key] === item.connection.type).toLowerCase();
+              const state = this.stateList.find((state) => state.id === item.id);
 
-              if(state) {
-                if(state.active === item.active) {
+              if (state) {
+                if (state.active === item.active) {
                   this._removeFromStateList(state.id);
-                }
-                else {
+                } else {
                   item.active = !!state.active;
                 }
               }
@@ -234,56 +230,52 @@ limitations under the License.
           const item = event.model.item;
           const element = Polymer.dom(event).localTarget;
 
-          if(element.elementMatches && element.elementMatches('paper-toggle-button')) {
-            const connection = this.connections.find(connection => connection.id === item.id);
+          if (element.elementMatches && element.elementMatches('paper-toggle-button')) {
+            const connection = this.connections.find((connection) => connection.id === item.id);
 
-            if(!connection) console.warn('Invalid connection');
+            if (!connection) console.warn('Invalid connection');
 
             this._addToStateList({id: connection.id, active: !item.active});
 
-            if(item.active) {
+            if (item.active) {
               this.$.connections.deactivate(connection)
-              .catch(err => this._catchActivationToggle(err, item));
-            }
-            else {
+              .catch((err) => this._catchActivationToggle(err, item));
+            } else {
               this.$.connections.activate(connection)
-              .catch(err => this._catchActivationToggle(err, item));
+              .catch((err) => this._catchActivationToggle(err, item));
             }
-          }
-          else {
+          } else {
             window.history.pushState({}, null, `/network-manager/${item.routePath}/${item.id}`);
             window.dispatchEvent(new CustomEvent('location-changed'));
           }
         },
 
         _addToStateList: function(obj) {
-          const index = this.stateList.findIndex(item => item.id === obj.id);
-          if(index !== -1) {
+          const index = this.stateList.findIndex((item) => item.id === obj.id);
+          if (index !== -1) {
             this.set(`stateList.${index}.active`, obj.active);
-          }
-          else {
+          } else {
             this.push('stateList', obj);
           }
         },
 
         _removeFromStateList: function(id) {
-          const index = this.stateList.findIndex(item => item.id === id);
-          if(index !== -1) {
+          const index = this.stateList.findIndex((item) => item.id === id);
+          if (index !== -1) {
             this.splice('stateList', index, 1);
           }
         },
 
         _catchActivationToggle: function(err, obj) {
           this._removeFromStateList(obj.id);
-          const index = this.items.findIndex(item => item.id === obj.id);
-          if(index !== undefined) {
+          const index = this.items.findIndex((item) => item.id === obj.id);
+          if (index !== undefined) {
             this.__setItems();
           }
           this.fire('network-manager-show-message', `Error: ${err.message}`);
         }
 
       });
-
     })(this);
   </script>
 </dom-module>

@@ -181,11 +181,11 @@ limitations under the License.
         _computeItems: function(interfaceName, devices) {
           let items = [];
 
-          if(!!interfaceName && Array.isArray(devices)) {
-            const device = devices.find(device => device.Interface === interfaceName);
+          if (!!interfaceName && Array.isArray(devices)) {
+            const device = devices.find((device) => device.Interface === interfaceName);
 
-            if(device && Array.isArray(device.scan)) {
-              items = [...new Set(device.scan.map(scan => scan.ssid).filter(ssid => String(ssid).trim().length > 0))].sort();
+            if (device && Array.isArray(device.scan)) {
+              items = [...new Set(device.scan.map((scan) => scan.ssid).filter((ssid) => String(ssid).trim().length > 0))].sort();
             }
           }
 
@@ -193,25 +193,25 @@ limitations under the License.
         },
 
         _observePlaceholder: function(placeholder) {
-          if(placeholder) {
+          if (placeholder) {
             this.set('comboPlaceholder', placeholder);
             this.set('inputPlaceholder', placeholder);
           }
         },
 
         _observeErrorMessage: function(errorMessage) {
-          if(errorMessage) {
+          if (errorMessage) {
             this.set('comboErrorMessage', errorMessage);
             this.set('inputErrorMessage', errorMessage);
           }
         },
 
         _observeIsHotspot: function(isHotspot) {
-          if(isHotspot) this.set('ssidIsHidden', true);
+          if (isHotspot) this.set('ssidIsHidden', true);
         },
 
         _observeIsHotspotAndValueAndItems: function(isHotspot, value) {
-          if(!isHotspot && Array.isArray(this.items) && !this.items.includes(value)) {
+          if (!isHotspot && Array.isArray(this.items) && !this.items.includes(value)) {
             this.set('ssidIsHidden', true);
           }
         },
@@ -221,7 +221,7 @@ limitations under the License.
         ],
 
         _onTapDefault: function() {
-          if(this.bitsId && this.isHotspot) {
+          if (this.bitsId && this.isHotspot) {
             this.set('ssidIsHidden', true);
             this.set('value', this.bitsId);
           }
@@ -236,7 +236,6 @@ limitations under the License.
         }
 
       });
-
     })(this);
   </script>
 </dom-module>

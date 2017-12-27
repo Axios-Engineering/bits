@@ -37,7 +37,7 @@ limitations under the License.
 
         return (
           subnetArr.length === 4 &&
-          subnetArr.every(octet => String(octet).length > 0 && !isNaN(Number(octet))) &&
+          subnetArr.every((octet) => String(octet).length > 0 && !isNaN(Number(octet))) &&
           binaryString.length === 32 &&
           binaryString.indexOf('01') === -1
         );

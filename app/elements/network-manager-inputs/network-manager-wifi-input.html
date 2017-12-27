@@ -236,36 +236,35 @@ limitations under the License.
         ],
 
         _observeIsHotspot: function(isHotspot) {
-          if(isHotspot) {
+          if (isHotspot) {
             this.set('item.ipv4.method', 'shared');
           }
 
-          if(!isHotspot) {
+          if (!isHotspot) {
             this.set('item.ipv4.method', 'auto');
           }
         },
 
         _observeChannel: function(channel) {
-          if(channel && typeof channel === 'string') this.set('item.802-11-wireless.channel', parseFloat(channel));
+          if (channel && typeof channel === 'string') this.set('item.802-11-wireless.channel', parseFloat(channel));
         },
 
         _observePasswordAndIsHotspot: function(password, isHotspot) {
-          if(isHotspot || (password && password.length > 0)) {
+          if (isHotspot || (password && password.length > 0)) {
             this.item['802-11-wireless-security']['key-mgmt'] = 'wpa-psk';
-          }
-          else {
+          } else {
             delete this.item['802-11-wireless-security']['key-mgmt'];
           }
         },
 
         _calculateValidity: function() {
-          if(!this.isHotspot && this.invalidList.password) this.invalidList.password = false;
+          if (!this.isHotspot && this.invalidList.password) this.invalidList.password = false;
 
           let invalid = this._invalidListHasAnyInvalid(this.invalidList);
-          if(invalid === false) {
-            if(this.isHotspot) {
+          if (invalid === false) {
+            if (this.isHotspot) {
               invalid = this._invalidListHasAnyInvalid(this.invalidHotspotList);
-              if(invalid === false && !this.itemHasEmptyAddressData()) {
+              if (invalid === false && !this.itemHasEmptyAddressData()) {
                 invalid = this._invalidListHasAnyInvalid(this.invalidStaticSharedList);
               }
             }
@@ -279,15 +278,15 @@ limitations under the License.
         },
 
         _invalidListHasAnyInvalid: function(list) {
-          if(!list) return true;
+          if (!list) return true;
 
-          return Object.keys(list).some(key => list[key]);
+          return Object.keys(list).some((key) => list[key]);
         },
 
         _getWirelessMode: function() {
           let mode = undefined;
 
-          if(this.item && this.item['802-11-wireless'] && this.item['802-11-wireless'].mode) {
+          if (this.item && this.item['802-11-wireless'] && this.item['802-11-wireless'].mode) {
             mode = this.item['802-11-wireless'].mode;
           }
 
@@ -296,16 +295,15 @@ limitations under the License.
 
         _resetItem: function() {
           this.set('item', Object.assign({}, {
-            connection: {autoconnect: false, 'interface-name': ''},
-            ipv4: {method: 'auto'},
-            ipv6: {method: 'ignore'},
+            'connection': {'autoconnect': false, 'interface-name': ''},
+            'ipv4': {method: 'auto'},
+            'ipv6': {method: 'ignore'},
             '802-11-wireless': {},
             '802-11-wireless-security': {}
           }));
         }
 
       });
-
     })(this);
   </script>
 </dom-module>

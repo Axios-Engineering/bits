@@ -101,18 +101,17 @@ limitations under the License.
         _computeItems: function(modeType) {
           let modes = [];
 
-          if(this.modes[modeType]) {
+          if (this.modes[modeType]) {
             modes = this.modes[modeType];
           }
 
-          return modes.map(mode => Object.assign({
+          return modes.map((mode) => Object.assign({
             label: mode,
             value: VALUES[mode.toUpperCase()]
           }));
         }
 
       });
-
     })(this);
   </script>
 </dom-module>

@@ -176,8 +176,8 @@ limitations under the License.
 
         _calculateValidity: function() {
           let invalid = this._invalidListHasAnyInvalid(this.invalidList);
-          if(invalid === false) {
-            if(this.staticSharedOpened) {
+          if (invalid === false) {
+            if (this.staticSharedOpened) {
               invalid = this._invalidListHasAnyInvalid(this.invalidStaticSharedList);
             }
           }
@@ -186,9 +186,9 @@ limitations under the License.
         },
 
         _invalidListHasAnyInvalid: function(list) {
-          if(!list) return true;
+          if (!list) return true;
 
-          return Object.keys(list).some(key => list[key]);
+          return Object.keys(list).some((key) => list[key]);
         },
 
         _resetItem: function() {
@@ -200,7 +200,6 @@ limitations under the License.
         }
 
       });
-
     })(this);
   </script>
 </dom-module>

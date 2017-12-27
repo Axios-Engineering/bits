@@ -61,7 +61,7 @@ limitations under the License.
       ],
 
       _observeCidr: function(cidr) {
-        if(this.isValidCidrV4(cidr)) {
+        if (this.isValidCidrV4(cidr)) {
           const parsedCidr = this.parseCidr(cidr);
 
           this.splice('item.ipv4.address-data', 0, 1, {address: parsedCidr.address, prefix: parsedCidr.prefixLength});
@@ -69,22 +69,21 @@ limitations under the License.
       },
 
       _observeItemData: function() {
-        if(!this.item) return;
+        if (!this.item) return;
 
-        if(Object.keys(this.item).length === 0) {
+        if (Object.keys(this.item).length === 0) {
           this._resetItem();
         }
 
-        if(!this.itemHasAddressData()) {
+        if (!this.itemHasAddressData()) {
           this.set('item.ipv4.address-data', [{}]);
         }
 
-        if(this.itemHasDnsData()) {
-          if(this.item.ipv4.dns.length === 1) {
+        if (this.itemHasDnsData()) {
+          if (this.item.ipv4.dns.length === 1) {
             this.push('item.ipv4.dns', null);
           }
-        }
-        else {
+        } else {
           this.set('item.ipv4.dns', [null, undefined]); // strange polymer bug if these are initialized at the same value
         }
       },
@@ -108,7 +107,7 @@ limitations under the License.
       _getIpv4MethodFromItem: function() {
         let method = undefined;
 
-        if(this.item && this.item.ipv4 && this.item.ipv4.method) {
+        if (this.item && this.item.ipv4 && this.item.ipv4.method) {
           method = this.item.ipv4.method;
         }
 
@@ -117,7 +116,7 @@ limitations under the License.
 
       _assertIndex: function(...args) {
         const index = args.shift();
-        return args.some(val => index === val);
+        return args.some((val) => index === val);
       },
 
       _resetItem: function() {},
@@ -131,7 +130,7 @@ limitations under the License.
       },
 
       itemHasEmptyAddressData: function() {
-        return this.itemHasAddressData() && !this.item.ipv4['address-data'].some(data => !!(data.address && data.prefix));
+        return this.itemHasAddressData() && !this.item.ipv4['address-data'].some((data) => !!(data.address && data.prefix));
       },
 
       itemHasDnsData: function() {
@@ -143,7 +142,7 @@ limitations under the License.
       },
 
       itemHasEmptyDnsData: function() {
-        return this.itemHasDnsData() && this.item.ipv4.dns.some(dnsVal => (dnsVal === null || dnsVal === undefined));
+        return this.itemHasDnsData() && this.item.ipv4.dns.some((dnsVal) => (dnsVal === null || dnsVal === undefined));
       }
 
     };

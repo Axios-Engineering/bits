@@ -120,9 +120,9 @@ limitations under the License.
         },
 
         _observeItemData: function() {
-          if(!this.item) return;
+          if (!this.item) return;
 
-          if(Object.keys(this.item).length === 0) {
+          if (Object.keys(this.item).length === 0) {
             this._resetItem();
           }
         },
@@ -145,9 +145,9 @@ limitations under the License.
         },
 
         _invalidListHasAnyInvalid: function(list) {
-          if(!list) return true;
+          if (!list) return true;
 
-          return Object.keys(list).some(key => list[key]);
+          return Object.keys(list).some((key) => list[key]);
         },
 
         _resetItem: function() {
@@ -155,12 +155,11 @@ limitations under the License.
             connection: {autoconnect: false},
             ipv4: {method: 'auto'},
             ipv6: {method: 'auto'},
-            gsm: {number: '*99#', 'password-flags': 1, apn: ''}
+            gsm: {'number': '*99#', 'password-flags': 1, 'apn': ''}
           }));
         }
 
       });
-
     })(this);
   </script>
 </dom-module>

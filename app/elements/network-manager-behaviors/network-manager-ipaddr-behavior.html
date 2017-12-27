@@ -33,7 +33,7 @@ limitations under the License.
       },
 
       parseCidr: function(cidr) {
-        if(!this.isValidCidrV4(cidr)) return null;
+        if (!this.isValidCidrV4(cidr)) return null;
 
         return this._parseCidr(cidr);
       },
@@ -45,7 +45,7 @@ limitations under the License.
       },
 
       prefixLengthFromSubnetMask: function(subnetMask) {
-        return subnetMask.split('.').map(Number).map(octet => (octet >>> 0).toString(2)).join('').split('1').length - 1;
+        return subnetMask.split('.').map(Number).map((octet) => (octet >>> 0).toString(2)).join('').split('1').length - 1;
       },
 
       broadcastAddressFromCidr: function(cidr) {
@@ -63,7 +63,7 @@ limitations under the License.
       _parseCidr: function(cidr) {
         let parseCidr = ipaddr.parseCIDR(cidr);
 
-        if(!(Array.isArray(parseCidr) && parseCidr.length === 2)) return null;
+        if (!(Array.isArray(parseCidr) && parseCidr.length === 2)) return null;
 
         const address = this._joinOctets(parseCidr[0].octets);
         const prefixLength = parseCidr[1];
