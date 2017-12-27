@@ -101,13 +101,13 @@ limitations under the License.
 
       static getAttrByKey(key, attr) {
         const obj = this.getByKey(key);
-        if(!obj) return obj;
+        if (!obj) return obj;
         return obj[attr];
       }
 
       static getOneWhereAttrIsValue(attr, val) {
-        const key = this.KEYS.find(key => this.ALL[key][attr] === val);
-        if(!key) return key;
+        const key = this.KEYS.find((key) => this.ALL[key][attr] === val);
+        if (!key) return key;
         return this.getByKey(key);
       }
     }
@@ -152,6 +152,5 @@ limitations under the License.
     global.Bits.NetworkManagerDeviceStateBehavior = [
       global.Bits.NetworkManagerDeviceStateBehaviorImpl
     ];
-
   })(this);
 </script>

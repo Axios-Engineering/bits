@@ -86,13 +86,13 @@ limitations under the License.
         },
 
         _computeItemId: function() {
-          let itemId = null
+          let itemId = null;
 
-          if(this.routeData && this.routeData.itemId) {
+          if (this.routeData && this.routeData.itemId) {
             itemId = this.routeData.itemId;
 
             const lastPathItem = window.location.pathname.split('/').pop();
-            if(lastPathItem && this.routePath && lastPathItem === this.routePath) {
+            if (lastPathItem && this.routePath && lastPathItem === this.routePath) {
               itemId = '';
             }
           }
@@ -101,7 +101,7 @@ limitations under the License.
         },
 
         _computePage: function(pageName) {
-          return this.pages.find(item => item.name === pageName);
+          return this.pages.find((item) => item.name === pageName);
         },
 
         observers: [
@@ -110,26 +110,24 @@ limitations under the License.
 
         _observeItemId: function(itemId) {
           const itemIdIsValid = (typeof itemId === 'string' || typeof itemId === 'number');
-          if(itemIdIsValid && itemId === 'create' && this.pageName !== 'create') {
+          if (itemIdIsValid && itemId === 'create' && this.pageName !== 'create') {
             this.set('pageName', 'create');
-          }
-          else if(itemIdIsValid && this.pageName !== 'detail') {
+          } else if (itemIdIsValid && this.pageName !== 'detail') {
             this.set('pageName', 'detail');
-          }
-          else if(this.pageName !== 'list') {
+          } else if (this.pageName !== 'list') {
             this.set('pageName', 'list');
           }
         },
 
         _observeElementItemId: function(element, itemId) {
-          if(!this.element) return;
+          if (!this.element) return;
 
-          if(itemId !== 'create' && this.pageName === 'detail') {
+          if (itemId !== 'create' && this.pageName === 'detail') {
             this.element.set('itemId', this.itemId);
           }
 
-          if(this.page.properties) {
-            Object.keys(this.page.properties).map(key => element.set(key, this.page.properties[key]));
+          if (this.page.properties) {
+            Object.keys(this.page.properties).map((key) => element.set(key, this.page.properties[key]));
           }
         },
 
@@ -152,7 +150,6 @@ limitations under the License.
         },
 
       });
-
     })(this);
   </script>
 </dom-module>

@@ -92,8 +92,8 @@ limitations under the License.
           band = String(band).toUpperCase();
           let items = [];
 
-          if(CHANNELS_BY_BAND[band]) {
-            items = CHANNELS_BY_BAND[band].map(frequency => {
+          if (CHANNELS_BY_BAND[band]) {
+            items = CHANNELS_BY_BAND[band].map((frequency) => {
               const channel = this.frequencyToChannel(frequency);
               return {
                 label: `${channel} (${frequency} MHz)`,
@@ -107,7 +107,7 @@ limitations under the License.
 
         _observeItems: function() {
           this.debounce('NetworkManager#WifiChannelInput', () => {
-            if(!(Array.isArray(this.items) && this.items.some(item => item.value === this.value))) {
+            if (!(Array.isArray(this.items) && this.items.some((item) => item.value === this.value))) {
               this.set('value', '');
             }
           }, 250);
@@ -117,16 +117,13 @@ limitations under the License.
           let channel = -1;
           if (frequency >= 2412 && frequency <= 2484) {
             channel = Math.floor((frequency - 2412) / 5);
-            if(frequency !== 2484) channel += 1;
-          }
-          else if (frequency >= 4915 && frequency <= 4980) {
+            if (frequency !== 2484) channel += 1;
+          } else if (frequency >= 4915 && frequency <= 4980) {
             channel = (frequency - 4915) / 5 + 183;
-            if(frequency === 4945) channel -= 1;
-          }
-          else if (frequency >= 5035 && frequency <= 5080) {
+            if (frequency === 4945) channel -= 1;
+          } else if (frequency >= 5035 && frequency <= 5080) {
             channel = (frequency - 5035) / 5 + 7;
-          }
-          else if (frequency >= 5170 && frequency <= 5825) {
+          } else if (frequency >= 5170 && frequency <= 5825) {
             channel = (frequency - 5170) / 5 + 34;
           }
 
@@ -134,7 +131,6 @@ limitations under the License.
         }
 
       });
-
     })(this);
   </script>
 </dom-module>

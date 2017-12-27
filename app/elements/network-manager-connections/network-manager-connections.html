@@ -66,10 +66,10 @@ limitations under the License.
 
     _computeFilteredItems: function(type) {
       type = String(type).toUpperCase();
-      if(type === 'ALL') return Array.from(this.items);
+      if (type === 'ALL') return Array.from(this.items);
       const connectionType = CONNECTION_TYPES[type];
-      if(!Array.isArray(this.items) || !connectionType) return [];
-      return this.items.filter(item => (item.connection && item.connection.type === connectionType));
+      if (!Array.isArray(this.items) || !connectionType) return [];
+      return this.items.filter((item) => (item.connection && item.connection.type === connectionType));
     },
 
     getTypes: function() {

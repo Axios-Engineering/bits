@@ -91,19 +91,19 @@ limitations under the License.
         },
 
         _observeSubnetValue: function(value) {
-          if(!value) return;
+          if (!value) return;
           const displayValue = this.subnetMaskFromPrefixLength(value);
-          if(displayValue !== this.displayValue) this.set('displayValue', displayValue);
+          if (displayValue !== this.displayValue) this.set('displayValue', displayValue);
         },
 
         _observeDisplayValue: function(displayValue) {
-          if(displayValue.split('.').length !== 4) return;
+          if (displayValue.split('.').length !== 4) return;
           const jobName = 'NetworkManagerSubnetPrefixInput#observeDisplayValue';
 
           this.cancelDebouncer(jobName);
           this.debounce(jobName, () => {
             const value = this.prefixLengthFromSubnetMask(displayValue);
-            if(value !== this.value) this.set('value', value);
+            if (value !== this.value) this.set('value', value);
           }, 200);
         }
 

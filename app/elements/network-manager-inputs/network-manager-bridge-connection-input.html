@@ -85,12 +85,11 @@ limitations under the License.
         },
 
         _computeItems: function() {
-          if(!this.connections) return [];
-          return this.connections.map(item => item.connection.id).sort();
+          if (!this.connections) return [];
+          return this.connections.map((item) => item.connection.id).sort();
         }
 
       });
-
     })(this);
   </script>
 </dom-module>

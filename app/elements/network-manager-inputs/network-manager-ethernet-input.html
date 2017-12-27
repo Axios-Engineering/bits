@@ -205,11 +205,10 @@ limitations under the License.
 
         _calculateValidity: function() {
           let invalid = this._invalidListHasAnyInvalid(this.invalidList);
-          if(invalid === false) {
-            if(this.staticSharedOpened) {
+          if (invalid === false) {
+            if (this.staticSharedOpened) {
               invalid = this._invalidListHasAnyInvalid(this.invalidStaticSharedList);
-            }
-            else if(this.bridgeOpened) {
+            } else if (this.bridgeOpened) {
               invalid = this._invalidListHasAnyInvalid(this.invalidBridgeList);
             }
           }
@@ -218,22 +217,21 @@ limitations under the License.
         },
 
         _invalidListHasAnyInvalid: function(list) {
-          if(!list) return true;
+          if (!list) return true;
 
-          return Object.keys(list).some(key => list[key]);
+          return Object.keys(list).some((key) => list[key]);
         },
 
         _resetItem: function() {
           this.set('item', Object.assign({}, {
-            connection: {autoconnect: false},
-            ipv4: {},
-            ipv6: {method: 'ignore'},
+            'connection': {autoconnect: false},
+            'ipv4': {},
+            'ipv6': {method: 'ignore'},
             '802-3-ethernet': {}
           }));
         }
 
       });
-
     })(this);
   </script>
 </dom-module>
