@@ -1,3 +1,18 @@
+<a name="3.1.0"></a>
+# 3.1.0 (2018-01-04)
+
+
+### Bug Fixes
+
+* **client:** Fixes connection type for cellular, changes value to gsm   (eb54cc2)
+
+
+### Features
+
+* Cellular Connections   (8a14fa6), closes AIST-19
+
+---
+
 <a name="3.0.1"></a>
 ## 3.0.1 (2017-12-01)
 
