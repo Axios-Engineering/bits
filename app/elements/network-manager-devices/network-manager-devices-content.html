@@ -19,6 +19,7 @@ limitations under the License.
 <link rel="import" href="../base-layout/base-single-grid-item-wrapper/base-single-grid-item-wrapper.html">
 <link rel="import" href="../network-manager-app/network-manager-shared-styles.html">
 <link rel="import" href="../network-manager-devices/network-manager-devices.html">
+<link rel="import" href="../network-manager-radios/network-manager-radios.html">
 <link rel="import" href="../network-manager-device-type/network-manager-device-type.html">
 <link rel="import" href="../network-manager-device-state/network-manager-device-state.html">
 <link rel="import" href="../network-manager-device-state-reason/network-manager-device-state-reason.html">
@@ -80,6 +81,11 @@ limitations under the License.
       items="{{devices}}">
     </network-manager-devices>
 
+    <network-manager-radios
+      id="radios"
+      items="{{radios}}">
+    </network-manager-radios>
+
     <network-manager-device-type
       id="deviceType">
     </network-manager-device-type>
@@ -103,8 +109,8 @@ limitations under the License.
             <span class="item">Enable All Wifi Cards</span>
             <span class="item item-no-pad-right item-cta">
               <paper-toggle-button
-                  on-tap="_onTapToggleWifiEnabled"
-                  checked=[[WifiEnabled]]>
+                  id="WifiEnabled"
+                  on-tap="_onTapToggleWifiEnabled">
               </paper-toggle-button>
             </span>
           </div>
@@ -190,7 +196,6 @@ limitations under the License.
 
         _onTapToggleManaged: function(event, detail) {
           const item = event.model.item;
-
           if (item.Managed) {
             this.$.devices.unmanage(item);
           } else {
@@ -221,9 +226,12 @@ limitations under the License.
           return description;
         },
 
-        _onTapToggleWifiEnabled: function(event, detail) {
-          const item = event;
-          console.log(item, detail);
+        _onTapToggleWifiEnabled: function() {
+          if (this.$.WifiEnabled.checked) {
+            this.$.radios.enableWifi();
+          } else {
+            this.$.radios.disableWifi();
+          }
         }
 
       });
