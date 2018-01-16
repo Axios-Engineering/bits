@@ -100,6 +100,13 @@ limitations under the License.
             <span class="item item-device">Device</span>
             <span class="item item-type">Type</span>
             <span class="item item-state hide-below-480">State</span>
+            <span class="item">Enable All Wifi Cards</span>
+            <span class="item item-no-pad-right item-cta">
+              <paper-toggle-button
+                  on-tap="_onTapToggleWifiEnabled"
+                  checked=[[WifiEnabled]]>
+              </paper-toggle-button>
+            </span>
           </div>
           <template is="dom-repeat" items="[[items]]">
             <div class$="line line-item no-hover active-[[item.Managed]]">
@@ -169,6 +176,9 @@ limitations under the License.
             type: Array,
             value: Array.from([]),
             computed: '_computeItems(devices.*)'
+          },
+          wirelessEnabled: {
+            type: Boolean
           }
         },
 
@@ -209,6 +219,11 @@ limitations under the License.
             if (obj) description = obj.description;
           }
           return description;
+        },
+
+        _onTapToggleWifiEnabled: function(event, detail) {
+          const item = event;
+          console.log(item, detail);
         }
 
       });
