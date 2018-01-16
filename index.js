@@ -16,6 +16,7 @@ limitations under the License.
 
 const DeviceManager = require('./lib/devices/device-manager');
 const ConnectionManager = require('./lib/connections/connection-manager');
+const RadioManager = require('./lib/radios/radio-manager');
 const nm = require('dbus-network-manager');
 
 (() => {
@@ -29,6 +30,7 @@ const nm = require('dbus-network-manager');
     constructor() {
       this._deviceManager = new DeviceManager();
       this._connectionManager = new ConnectionManager();
+      this._radioManager = new RadioManager();
     }
 
     load(messageCenter) {
@@ -51,14 +53,16 @@ const nm = require('dbus-network-manager');
       .then((connectedNetworkManager) => {
         return Promise.resolve()
         .then(() => this._deviceManager.load(messageCenter, connectedNetworkManager))
-        .then(() => this._connectionManager.load(messageCenter, connectedNetworkManager));
+        .then(() => this._connectionManager.load(messageCenter, connectedNetworkManager))
+        .then(() => this._radioManager.load(messageCenter, connectedNetworkManager));
       });
     }
 
     unload(messageCenter) {
       return Promise.resolve()
       .then(() => this._connectionManager.unload(messageCenter))
-      .then(() => this._deviceManager.unload(messageCenter));
+      .then(() => this._deviceManager.unload(messageCenter))
+      .then(() => this._radioManager.unload(messageCenter));
     }
   }
 
