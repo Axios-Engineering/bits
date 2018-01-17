@@ -24,8 +24,8 @@ limitations under the License.
     <style include="base-shared-styles">
 
       .header-toolbar {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
+        @apply --layout-horizontal;
+        @apply --layout-center;
       }
 
       .header-content {
@@ -43,6 +43,10 @@ limitations under the License.
 
       .line-filter {
         padding: 0 8px;
+      }
+
+      .line-justify {
+        @apply --layout-justified;
       }
 
       .line-header .item {

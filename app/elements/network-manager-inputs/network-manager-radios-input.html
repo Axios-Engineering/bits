@@ -1,0 +1,49 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../network-manager-radios/network-manager-radios.html">
+
+<dom-module id="network-manager-radios-input">
+  <template>
+    <style>
+    </style>
+
+    <network-manager-radios
+      id="radios"
+      no-items>
+    </network-manager-radios>
+
+    <paper-toggle-button
+      checked="{{radiosEnabled}}">
+      Wi-Fi Enabled
+    </paper-toggle-button>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      Polymer({
+        is: 'network-manager-radios-input',
+
+        properties: {
+          radiosEnabled: {
+            type: Boolean,
+            observer: '_observeRadiosEnabled'
+          }
+        },
+
+        _observeRadiosEnabled: function(radiosEnabled) {
+          radiosEnabled = !!radiosEnabled;
+          Promise.resolve()
+          .then(() => {
+            if (radiosEnabled) return this.$.radios.enableWifi();
+            return this.$.radios.disableWifi();
+          })
+          .then(() => this.fire('network-manager-show-message', `Wi-Fi ${radiosEnabled ? 'Enabled' : 'Disabled'}`))
+          .catch((err) => this.fire('network-manager-show-message', `Error: ${err.message}`));
+        }
+
+      });
+    })(this);
+  </script>
+</dom-module>
