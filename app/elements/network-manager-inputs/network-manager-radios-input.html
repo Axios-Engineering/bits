@@ -16,6 +16,7 @@ limitations under the License.
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../base-key-value/base-key-value-document.html">
 <link rel="import" href="../network-manager-app/network-manager-shared-styles.html">
 <link rel="import" href="../network-manager-radios/network-manager-radios.html">
 
@@ -24,15 +25,21 @@ limitations under the License.
     <style include="network-manager-shared-styles">
     </style>
 
+    <base-key-value-document
+      tag="networkManager#Radios"
+      key="wirelessEnabled"
+      data="{{wirelessEnabled}}">
+    </base-key-value-document>
+
     <network-manager-radios
       id="radios"
       no-items>
     </network-manager-radios>
 
     <paper-toggle-button
-      id="radiosEnabled"
-      checked="[[radiosEnabled]]"
-      on-tap="_onTapRadiosEnabled">
+      id="wirelessEnabled"
+      checked="[[wirelessEnabled]]"
+      on-tap="_onTapWirelessEnabled">
       Wi-Fi<span class="hide-below-480"> Enabled</span>
     </paper-toggle-button>
 
@@ -44,31 +51,19 @@ limitations under the License.
       Polymer({
         is: 'network-manager-radios-input',
 
-        properties: {
-          radiosEnabled: {
-            type: Boolean
-          }
+        _onTapWirelessEnabled: function() {
+          this._toggleWirelessEnabled();
         },
 
-        _onTapRadiosEnabled: function() {
-          this._toggleRadiosEnabled();
-        },
-
-        _toggleRadiosEnabled: function() {
-          const radiosEnabled = !this.radiosEnabled;
+        _toggleWirelessEnabled: function() {
+          const wirelessEnabled = !this.wirelessEnabled;
           Promise.resolve()
           .then(() => {
-            if (radiosEnabled) return this.$.radios.enableWifi();
+            if (wirelessEnabled) return this.$.radios.enableWifi();
             return this.$.radios.disableWifi();
           })
-          .then(() => this.fire('network-manager-show-message', `Wi-Fi ${radiosEnabled ? 'Enabled' : 'Disabled'}`))
-          .then(() => this.set('radiosEnabled', radiosEnabled))
+          .then(() => this.fire('network-manager-show-message', `Wi-Fi ${wirelessEnabled ? 'Enabled' : 'Disabled'}`))
           .catch((err) => this.fire('network-manager-show-message', `Error: ${err.message}`));
-        },
-
-        attached: function() {
-          this.$.radios.getWifiState()
-          .then((state) => this.set('radiosEnabled', !!state));
         }
 
       });

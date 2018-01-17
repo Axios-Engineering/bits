@@ -105,6 +105,10 @@ limitations under the License.
           }
         },
 
+        listeners: {
+          'network-manager-show-message': '_onNetworkManagerShowMessage'
+        },
+
         _onNetworkManagerShowMessage: function(event, detail) {
           this.showSnackbar(detail);
         },

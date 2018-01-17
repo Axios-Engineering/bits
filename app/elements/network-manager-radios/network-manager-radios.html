@@ -16,14 +16,7 @@ limitations under the License.
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <!-- bplint-disable no-unused-import -->
 <link rel="import" href="../base-crud/base-crud-behavior.html">
-<link rel="import" href="../base-key-value-document.html">
 <!-- bplint-disable no-unused-import -->
-
-<base-key-value-document
-      tag="networkManager#Radios"
-      key="WirelessEnabled"
-      data="{{WirelessEnabled}}">
-    </base-key-value-document>
 
 <script>
 ((global) => {
@@ -51,18 +44,7 @@ limitations under the License.
     properties: {
       tag: {
         value: RadiosMessenger.TAG
-      },
-      WirelessEnabled: {
-        type: Boolean,
-        computed: '_computeWirelessEnabled(WirelessEnabled)',
-        notify: true
       }
-    },
-
-    _computeWirelessEnabled: function(WirelessEnabled) {
-      if (!WirelessEnabled) {
-        return false;
-      } return true;
     },
 
     enableWifi: function() {
