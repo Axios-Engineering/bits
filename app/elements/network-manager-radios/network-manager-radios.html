@@ -29,8 +29,9 @@ limitations under the License.
 
     static get REQUEST() {
       return {
-        ENABLEWIFI: `${RadiosMessenger.TAG} unsoftblock`,
-        DISABLEWIFI: `${RadiosMessenger.TAG} softblock`
+        ENABLE_WIFI: `${RadiosMessenger.TAG} unsoftblock`,
+        DISABLE_WIFI: `${RadiosMessenger.TAG} softblock`,
+        WIFI_STATE: `${RadiosMessenger.TAG} wifistate`
       };
     }
   }
@@ -47,11 +48,15 @@ limitations under the License.
     },
 
     enableWifi: function() {
-      return this.sendRequest(RadiosMessenger.REQUEST.ENABLEWIFI, null);
+      return this.sendRequest(RadiosMessenger.REQUEST.ENABLE_WIFI, null);
     },
 
     disableWifi: function() {
-      return this.sendRequest(RadiosMessenger.REQUEST.DISABLEWIFI, null);
+      return this.sendRequest(RadiosMessenger.REQUEST.DISABLE_WIFI, null);
+    },
+
+    getWifiState: function() {
+      return this.sendRequest(RadiosMessenger.REQUEST.WIFI_STATE, null);
     }
 
   });

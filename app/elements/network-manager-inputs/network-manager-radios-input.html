@@ -30,7 +30,9 @@ limitations under the License.
     </network-manager-radios>
 
     <paper-toggle-button
-      checked="{{radiosEnabled}}">
+      id="radiosEnabled"
+      checked="[[radiosEnabled]]"
+      on-tap="_onTapRadiosEnabled">
       Wi-Fi<span class="hide-below-480"> Enabled</span>
     </paper-toggle-button>
 
@@ -44,20 +46,29 @@ limitations under the License.
 
         properties: {
           radiosEnabled: {
-            type: Boolean,
-            observer: '_observeRadiosEnabled'
+            type: Boolean
           }
         },
 
-        _observeRadiosEnabled: function(radiosEnabled) {
-          radiosEnabled = !!radiosEnabled;
+        _onTapRadiosEnabled: function() {
+          this._toggleRadiosEnabled();
+        },
+
+        _toggleRadiosEnabled: function() {
+          const radiosEnabled = !this.radiosEnabled;
           Promise.resolve()
           .then(() => {
             if (radiosEnabled) return this.$.radios.enableWifi();
             return this.$.radios.disableWifi();
           })
           .then(() => this.fire('network-manager-show-message', `Wi-Fi ${radiosEnabled ? 'Enabled' : 'Disabled'}`))
+          .then(() => this.set('radiosEnabled', radiosEnabled))
           .catch((err) => this.fire('network-manager-show-message', `Error: ${err.message}`));
+        },
+
+        attached: function() {
+          this.$.radios.getWifiState()
+          .then((state) => this.set('radiosEnabled', !!state));
         }
 
       });
