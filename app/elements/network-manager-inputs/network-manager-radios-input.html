@@ -16,11 +16,12 @@ limitations under the License.
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../network-manager-app/network-manager-shared-styles.html">
 <link rel="import" href="../network-manager-radios/network-manager-radios.html">
 
 <dom-module id="network-manager-radios-input">
   <template>
-    <style>
+    <style include="network-manager-shared-styles">
     </style>
 
     <network-manager-radios
@@ -30,7 +31,7 @@ limitations under the License.
 
     <paper-toggle-button
       checked="{{radiosEnabled}}">
-      Wi-Fi Enabled
+      Wi-Fi<span class="hide-below-480"> Enabled</span>
     </paper-toggle-button>
 
   </template>
