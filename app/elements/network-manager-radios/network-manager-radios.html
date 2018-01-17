@@ -38,26 +38,12 @@ limitations under the License.
   Polymer({
     is: 'network-manager-radios',
 
-    behaviors: [
-      global.Bits.BaseCrudBehavior
-    ],
+    behaviors: [Bits.BaseCrudBehavior],
 
     properties: {
       tag: {
         value: RadiosMessenger.TAG
-      },
-      type: {
-        type: String
-      },
-      filteredItems: {
-        type: Array,
-        computed: '_computeFilteredItems(type, items.*)',
-        notify: true
       }
-    },
-
-    getTypes: function() {
-      return Object.assign({}, DEVICE_TYPES);
     },
 
     enableWifi: function() {
