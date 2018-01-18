@@ -39,15 +39,11 @@ limitations under the License.
   Polymer({
     is: 'network-manager-radios',
 
-    behaviors: [],
+    behaviors: [global.Bits.BaseCrudBehavior],
 
     properties: {
       tag: {
         value: RadiosMessenger.TAG
-      },
-      WirelessEnabled: {
-        type: Boolean,
-        notify: true
       }
     },
 
