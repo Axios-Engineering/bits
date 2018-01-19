@@ -1,0 +1,72 @@
+<!--
+Copyright 2017 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../base-key-value/base-key-value-document.html">
+<link rel="import" href="../network-manager-app/network-manager-shared-styles.html">
+<link rel="import" href="../network-manager-radios/network-manager-radios.html">
+
+<dom-module id="network-manager-radios-input">
+  <template>
+    <style include="network-manager-shared-styles">
+    </style>
+
+    <base-key-value-document
+      tag="networkManager#Radios"
+      key="wirelessEnabled"
+      data="{{wirelessEnabled}}">
+    </base-key-value-document>
+
+    <network-manager-radios
+      id="radios"
+      no-items>
+    </network-manager-radios>
+
+    <paper-toggle-button
+      id="wirelessEnabled"
+      checked="[[wirelessEnabled]]"
+      on-tap="_onTapWirelessEnabled">
+      Wi-Fi<span class="hide-below-480"> Enabled</span>
+    </paper-toggle-button>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      Polymer({
+        is: 'network-manager-radios-input',
+
+        _onTapWirelessEnabled: function() {
+          this._toggleWirelessEnabled();
+        },
+
+        _toggleWirelessEnabled: function() {
+          const wirelessEnabled = !this.wirelessEnabled;
+          Promise.resolve()
+          .then(() => {
+            if (wirelessEnabled) return this.$.radios.enableWifi();
+            return this.$.radios.disableWifi();
+          })
+          .then(() => this.fire('network-manager-show-message', `Wi-Fi ${wirelessEnabled ? 'Enabled' : 'Disabled'}`))
+          .catch((err) => this.fire('network-manager-show-message', `Error: ${err.message}`));
+        }
+
+      });
+    })(this);
+  </script>
+</dom-module>
