@@ -10,6 +10,11 @@
     "contentImport": "/elements/network-manager-app/network-manager-app.html",
     "contentElement": "network-manager-app",
     "version": "",
+    "widgets": [{
+      "import": "/elements/network-manager-widget/network-manager-widget.html",
+      "scopes": [{"name": "networking"}],
+      "element": "network-manager-widget"
+    }],
     "dependencies": {
       "bits-base": "^2.0.0"
     },
