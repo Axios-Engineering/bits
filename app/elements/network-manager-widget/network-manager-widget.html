@@ -61,12 +61,15 @@
           <span class="item item-name">Name</span>
           <span class="item item-type hide-below-480">Type</span>
         </div>
-        <template is="dom-repeat" items="[[items]]">
-          <div class$="line active-[[item.active]]">
-            <span class="item item-name">[[item.name]]</span>
-            <span class="item item-type hide-below-480">[[item.type]]</span>
-          </div>
-        </template>
+        <div hidden="[[!items.length]]">
+          <template is="dom-repeat" items="[[items]]">
+            <div class$="line active-[[item.active]]">
+              <span class="item item-name">[[item.name]]</span>
+              <span class="item item-type hide-below-480">[[item.type]]</span>
+            </div>
+          </template>
+        </div>
+        <span hidden="[[items.length]]">No Active Connections</span>
       </base-single-grid-item-wrapper>
     </div>
 
@@ -106,8 +109,7 @@
         properties: {
           items: {
             type: Array,
-            value: Array.from([]),
-            readOnly: true
+            computed: '_computeItems(connections.*, devices.*)'
           },
           stateList: {
             type: Array,
@@ -115,7 +117,7 @@
           }
         },
 
-        __setItems: function() {
+        _computeItems: function() {
           let items = [];
 
           if (Array.isArray(this.connections)) {
@@ -145,30 +147,12 @@
             });
           }
 
-          this._setItems(items);
-        },
-
-        _observeConnectionsAndDevices: function() {
-          this.__setItems();
-          this.refreshLayout();
-        },
-
-        _computeHidden: function() {
-          return Array.isArray(this.connections) && this.connections.length < 1;
-        },
-
-        _observeHidden: function() {
-          this.toggleClass('hidden', this.hidden, Polymer.dom(this).node);
-          this.refreshLayout();
+          return items;
         },
 
         refreshLayout: function() {
           this.async(() => this.fire('base-dashboard-refresh-layout'), 150);
-        },
-
-        observers: [
-          '_observeConnectionsAndDevices(connections.*, devices.*)'
-        ]
+        }
       });
     })(this);
   </script>
