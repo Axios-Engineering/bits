@@ -45,11 +45,12 @@
             readOnly: true
           },
           computedIcon: {
-            type: String
+            type: String,
+            computed: '_computeIconFromActiveConnection(devices.*)'
           }
         },
 
-        _computeIconFromActiveConnection() {
+        _computeIconFromActiveConnection(deviceChanges) {
           let iconToReturn = 'device:signal-wifi-0-bar';
           let priorityConnection = -1;
 
@@ -69,15 +70,7 @@
           }
 
           return iconToReturn;
-        },
-
-        _observeDevices: function() {
-          this.computedIcon = this._computeIconFromActiveConnection();
-        },
-
-        observers: [
-          '_observeDevices(devices.*)'
-        ]
+        }
       });
     })();
   </script>
