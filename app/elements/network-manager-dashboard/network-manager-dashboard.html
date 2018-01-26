@@ -14,6 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../network-manager-behaviors/network-manager-ipaddr-behavior.html">
+<!-- bplint-disable no-unused-import -->
 <link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../base-layout/base-header-layout/base-header-layout.html">
 <link rel="import" href="../base-layout/base-single-grid-item-wrapper/base-single-grid-item-wrapper.html">
@@ -32,11 +35,11 @@ limitations under the License.
 
       .item-cta {
         position: relative;
-        flex: 0 0 50px;
+        flex: 0 0 30px;
       }
 
       .item-name {
-        flex: 0 0 105px;
+        flex: 0 0 95px;
       }
 
       .item-uuid {
@@ -44,15 +47,19 @@ limitations under the License.
       }
 
       .item-type {
-        flex: 0 0 120px;
+        flex: 0 0 100px;
       }
 
       .item-device {
-        flex: 0 0 85px;
+        flex: 0 0 65px;
+      }
+
+      .item-ipv4 {
+        flex: 0 0 90px;
       }
 
       .item-updated {
-        flex: 0 0 150px;
+        flex: 0 0 135px;
       }
 
       paper-toggle-button {
@@ -73,14 +80,8 @@ limitations under the License.
         }
       }
 
-      @media (max-width: 840px) {
-        .item-type {
-          @apply --layout-flex;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .item-device {
+      @media (max-width: 960px) {
+        .item-name {
           @apply --layout-flex;
         }
       }
@@ -101,10 +102,11 @@ limitations under the License.
           <div class="line line-header">
             <span class="item item-no-pad-left item-overflow-visible item-cta"></span>
             <span class="item item-name">Name</span>
-            <span class="item item-uuid hide-between-1024-1100 hide-below-840">UUID</span>
-            <span class="item item-type hide-below-480">Type</span>
+            <span class="item item-uuid hide-between-1024-1100 hide-below-960">UUID</span>
+            <span class="item item-type hide-below-600">Type</span>
             <span class="item item-device">Device</span>
-            <span class="item item-updated hide-below-720">Last Used</span>
+            <span class="item item-ipv4">IP Address</span>
+            <span class="item item-updated hide-below-840">Last Used</span>
           </div>
           <template is="dom-repeat" items="[[items]]">
             <div class$="line line-item active-[[item.active]]" on-tap="_onTapDetail">
@@ -114,13 +116,17 @@ limitations under the License.
                 </paper-toggle-button>
               </span>
               <span class="item item-name">[[item.name]]</span>
-              <span class="item item-uuid hide-between-1024-1100 hide-below-840">[[item.uuid]]</span>
-              <span class="item item-type hide-below-480">[[item.type]]</span>
+              <span class="item item-uuid hide-between-1024-1100 hide-below-960">[[item.uuid]]</span>
+              <span class="item item-type hide-below-600">[[item.type]]</span>
               <span class="item item-device">
                 <span hidden="[[!item.active]]">[[item.device]]</span>
                 <span hidden="[[item.active]]">--</span>
               </span>
-              <span class="item item-updated hide-below-720"><base-moment timestamp="[[item.timestamp]]" is-epoch reformat></base-moment></span>
+              <span class="item item-ipv4">
+                <span hidden="[[!item.active]]">[[item.ip4Address]]</span>
+                <span hidden="[[item.active]]">--</span>
+              </span>
+              <span class="item item-updated hide-below-840"><base-moment timestamp="[[item.timestamp]]" is-epoch reformat></base-moment></span>
             </div>
           </template>
         </base-single-grid-item-wrapper>
@@ -160,6 +166,8 @@ limitations under the License.
       Polymer({
         is: 'network-manager-dashboard',
 
+        behaviors: [Bits.NetworkManagerIpaddrBehavior],
+
         properties: {
           items: {
             type: Array,
@@ -182,13 +190,20 @@ limitations under the License.
 
             let appliedConnections = [];
             if (Array.isArray(this.devices)) {
-              appliedConnections = this.devices.filter((device) => device.AppliedConnection.length > 0).map((device) => device.AppliedConnection[0]);
+              appliedConnections = this.devices.filter((device) => device.AppliedConnection.length > 0).map((device) => Object.assign({}, {interface: device.Interface, ip4Address: device.Ip4Address}, device.AppliedConnection[0]));
             }
 
             items = this.connections.filter((item) => supportedVals.includes(item.connection.type))
-              .map((item) => Object.assign(item, {active: appliedConnections.some((appliedConnection) => appliedConnection.connection.uuid === item.connection.uuid)}));
-            items.sort(sortByActiveAndConnectionId);
+            .map((item) => {
+              const appliedConnection = appliedConnections.find((appliedConnection) => appliedConnection.connection.uuid === item.connection.uuid);
+              const isActive = !!appliedConnection;
 
+              return Object.assign(item, {
+                active: isActive,
+                device: isActive ? appliedConnection.interface : null,
+                ip4Address: isActive && appliedConnection.ip4Address > 0 ? this.numToIp(appliedConnection.ip4Address) : null
+              });
+            }).sort(sortByActiveAndConnectionId);
 
             items = items.map((item) => {
               const routePath = supportedKeys.find((key) => supported[key] === item.connection.type).toLowerCase();
@@ -207,9 +222,10 @@ limitations under the License.
                 name: item.connection.id,
                 uuid: item.connection.uuid,
                 type: item.connection.type,
-                device: item.connection['interface-name'],
+                device: item.device,
                 routePath: routePath,
                 active: item.active,
+                ip4Address: item.ip4Address,
                 timestamp: item.connection.timestamp
               };
             });

@@ -60,6 +60,14 @@ limitations under the License.
         return this._joinOctets(networkAddress.octets);
       },
 
+      numToIp: function(num) {
+        return [0, 8, 16, 24].map((shift) => num >> shift & 255).join('.');
+      },
+
+      ipToNum: function(ip) {
+        return ip.split('.').reverse().reduce((sum, num, index) => ((sum + Number(num)) * (index < 3 ? 256 : 1)), 0);
+      },
+
       _parseCidr: function(cidr) {
         let parseCidr = ipaddr.parseCIDR(cidr);
 
