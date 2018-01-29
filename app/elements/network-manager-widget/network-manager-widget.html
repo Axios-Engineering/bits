@@ -15,10 +15,10 @@
 
       .main {
         display: block;
-        padding: 16px 16px 0 16px;
         text-decoration: none;
         color: var(--primary-text-color);
         position: relative;
+        overflow: hidden;
       }
 
       .main:after {
@@ -33,7 +33,20 @@
       }
 
       .main:hover:after {
-        width: 100%;
+        width: 75%;
+      }
+
+      .content {
+        display: block;
+        padding: 16px 16px 0 16px;
+        position: relative;
+        z-index: 1;
+        left: 0;
+        transition: left 500ms cubic-bezier(0.075, 0.820, 0.165, 1.000);
+      }
+
+      .main:hover .content {
+        left: -25%;
       }
 
       .title {
@@ -45,7 +58,13 @@
         text-align: center;
         padding-left: 32px;
         position: relative;
-        z-index: 1;
+        left: 0;
+        transition: left 500ms cubic-bezier(0.075, 0.820, 0.165, 1.000), padding-left 500ms cubic-bezier(0.075, 0.820, 0.165, 1.000);
+      }
+
+      .main:hover .title {
+        left: 12%;
+        padding-left: 0px;
       }
 
       .title iron-icon {
@@ -64,8 +83,6 @@
         padding: 8px 0;
         width: 100%;
         border-top: 1px solid var(--divider-color);
-        position: relative;
-        z-index: 1;
       }
 
       .item {
@@ -110,9 +127,35 @@
         color: var(--paper-grey-700);
         font-style: italic;
         font-size: 14px;
-        position: relative;
-        z-index: 1;
       }
+
+      .see-more {
+        width: 25%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        right: -25%;
+        background-color: var(--primary-color);
+        color: #fff;
+        @apply --paper-font-common-base;
+        font-size: 14px;
+        text-transform: uppercase;
+        text-align: center;
+      }
+
+      .see-more .inner {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        transform: translateY(-50%);
+      }
+
+      .see-more iron-icon {
+        display: block;
+        margin: 0 auto;
+      }
+
     </style>
 
     <network-manager-connections
@@ -126,20 +169,29 @@
     </network-manager-devices>
 
     <a href="/network-manager" class="main">
-      <span class="title"><iron-icon icon="icons:swap-vert"></iron-icon>Active Network Connections</span>
+      <span class="content">
+        <span class="title"><iron-icon icon="icons:swap-vert"></iron-icon>Active Network Connections</span>
 
-      <span class="connections" hidden="[[!items.length]]">
-        <template is="dom-repeat" items="[[items]]">
-          <span class="item">
-            <span class="type"><iron-icon icon="[[item.icon]]"></iron-icon></span>
-            <span class="name">[[item.name]]</span>
-            <span class="device">[[item.device]]</span>
-            <span class="ip">[[item.ip]]</span>
+        <span class="connections" hidden="[[!items.length]]">
+          <template is="dom-repeat" items="[[items]]">
+            <span class="item">
+              <span class="type"><iron-icon icon="[[item.icon]]"></iron-icon></span>
+              <span class="name">[[item.name]]</span>
+              <span class="device">[[item.device]]</span>
+              <span class="ip">[[item.ip]]</span>
+            </span>
+          </template>
+        </span>
+
+        <span class="no-connections" hidden="[[items.length]]">No Connections</span>
+
+        <span class="see-more">
+          <span class="inner">
+            <iron-icon icon="icons:more-horiz"></iron-icon>
+            <span>See More</span>
           </span>
-        </template>
+        </span>
       </span>
-
-      <span class="no-connections" hidden="[[items.length]]">No Connections</span>
     </a>
 
   </template>
