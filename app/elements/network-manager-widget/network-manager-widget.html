@@ -1,0 +1,287 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../network-manager-behaviors/network-manager-ipaddr-behavior.html">
+<!-- bplint-disable no-unused-import -->
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../network-manager-connections/network-manager-connections.html">
+<link rel="import" href="../network-manager-devices/network-manager-devices.html">
+
+<dom-module id="network-manager-widget">
+  <template>
+    <style>
+      [hidden] {
+        display: none !important;
+      }
+
+      .main {
+        display: block;
+        text-decoration: none;
+        color: var(--primary-text-color);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .main:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.05);
+        transition: width 500ms cubic-bezier(0.075, 0.820, 0.165, 1.000);
+      }
+
+      .main:hover:after {
+        width: 75%;
+      }
+
+      .content {
+        display: block;
+        padding: 16px 16px 0 16px;
+        position: relative;
+        z-index: 1;
+        left: 0;
+        transition: left 500ms cubic-bezier(0.075, 0.820, 0.165, 1.000);
+      }
+
+      .main:hover .content {
+        left: -25%;
+      }
+
+      .title {
+        @apply --paper-font-common-base;
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 32px;
+        display: block;
+        text-align: center;
+        padding-left: 32px;
+        position: relative;
+        left: 0;
+        transition: left 500ms cubic-bezier(0.075, 0.820, 0.165, 1.000), padding-left 500ms cubic-bezier(0.075, 0.820, 0.165, 1.000);
+      }
+
+      .main:hover .title {
+        left: 12%;
+        padding-left: 0px;
+      }
+
+      .title iron-icon {
+        --iron-icon-height: 32px;
+        --iron-icon-width: 32px;
+        color: var(--primary-color);
+        margin-right: 4px;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      .connections {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 8px 0;
+        width: 100%;
+        border-top: 1px solid var(--divider-color);
+      }
+
+      .item {
+        width: 100%;
+        @apply --layout-horizontal;
+        @apply --paper-font-common-base;
+        font-size: 14px;
+        line-height: 24px;
+        margin-bottom: 8px;
+      }
+
+      .item .type {
+        flex: 0 0 24px;
+      }
+
+      .item .type iron-icon {
+        --iron-icon-height: 16px;
+        --iron-icon-width: 16px;
+      }
+
+      .item .name {
+        padding: 0 16px 0 11px;
+        @apply --layout-flex;
+      }
+
+      .item .device {
+        padding-right: 16px;
+        flex: 0 0 65px;
+      }
+
+      .item .ip {
+        flex: 0 0 90px;
+        text-align: right;
+      }
+
+      .no-connections {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        padding: 16px 0;
+        @apply --paper-font-common-code;
+        color: var(--paper-grey-700);
+        font-style: italic;
+        font-size: 14px;
+      }
+
+      .see-more {
+        width: 25%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        right: -25%;
+        background-color: var(--primary-color);
+        color: #fff;
+        @apply --paper-font-common-base;
+        font-size: 14px;
+        text-transform: uppercase;
+        text-align: center;
+      }
+
+      .see-more .inner {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        transform: translateY(-50%);
+      }
+
+      .see-more iron-icon {
+        display: block;
+        margin: 0 auto;
+      }
+
+    </style>
+
+    <network-manager-connections
+      id="connections"
+      items="{{connections}}">
+    </network-manager-connections>
+
+    <network-manager-devices
+      id="devices"
+      items="{{devices}}">
+    </network-manager-devices>
+
+    <a href="/network-manager" class="main">
+      <span class="content">
+        <span class="title"><iron-icon icon="icons:swap-vert"></iron-icon>Active Network Connections</span>
+
+        <span class="connections" hidden="[[!items.length]]">
+          <template is="dom-repeat" items="[[items]]">
+            <span class="item">
+              <span class="type"><iron-icon icon="[[item.icon]]"></iron-icon></span>
+              <span class="name">[[item.name]]</span>
+              <span class="device">[[item.device]]</span>
+              <span class="ip">[[item.ip]]</span>
+            </span>
+          </template>
+        </span>
+
+        <span class="no-connections" hidden="[[items.length]]">No Connections</span>
+
+        <span class="see-more">
+          <span class="inner">
+            <iron-icon icon="icons:more-horiz"></iron-icon>
+            <span>See More</span>
+          </span>
+        </span>
+      </span>
+    </a>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      const DEFAULTS = {
+        UNKNOWN: '--'
+      };
+
+      const ICONS = {
+        DEFAULT: 'icons:perm-device-information',
+        ETHERNET: 'icons:settings-ethernet',
+        BRIDGE: 'hardware:device-hub',
+        WIFI: 'notification:wifi',
+        CELLULAR: 'hardware:sim-card'
+      };
+
+      function arrayHasValues(arr) {
+        return Array.isArray(arr) && arr.length > 0;
+      }
+
+      function getIconFromDeviceTypes(deviceTypes, type) {
+        const key = Object.entries(deviceTypes).find((item) => item[1] === type);
+        if (arrayHasValues(key) && ICONS.hasOwnProperty(key[0])) return ICONS[key[0]];
+        return ICONS.DEFAULT;
+      }
+
+      Polymer({
+        is: 'network-manager-widget',
+
+        behaviors: [Bits.NetworkManagerIpaddrBehavior],
+
+        properties: {
+          deviceTypes: {
+            type: Object
+          },
+          connectionTypes: {
+            type: Array
+          },
+          items: {
+            type: Array,
+            computed: '_computeItems(deviceTypes, connectionTypes, connections.*, devices.*)',
+            observer: '_observeItems'
+          }
+        },
+
+        _computeItems: function(deviceTypes, connectionTypes) {
+          const devices = this.devices;
+          const connections = this.connections;
+
+          if (!arrayHasValues(devices) || !arrayHasValues(connections) || !arrayHasValues(Object.keys(deviceTypes)) || !arrayHasValues(connectionTypes)) return [];
+
+          return devices.filter((device) => device.AppliedConnection.length)
+          .map((device) => {
+            const appliedConnection = device.AppliedConnection[0];
+            const connection = connections.find((connection) => connection.connection.uuid === appliedConnection.connection.uuid);
+
+            if (!connection) return null;
+            if (!connectionTypes.includes(connection.connection.type)) return null;
+
+            let ip = DEFAULTS.UNKNOWN;
+            if (device.Ip4Address && device.DeviceType !== deviceTypes.CELLULAR) {
+              ip = this.numToIp(device.Ip4Address);
+            }
+
+            return {
+              name: connection.connection.id,
+              device: device.Interface,
+              ip: ip,
+              icon: getIconFromDeviceTypes(deviceTypes, device.DeviceType)
+            };
+          }).filter((item) => !!item);
+        },
+
+        _observeItems: function() {
+          this.refreshLayout();
+        },
+
+        refreshLayout: function() {
+          this.async(() => this.fire('base-dashboard-refresh-layout'), 150);
+        },
+
+        attached: function() {
+          if (!this.$.devices || !this.$.connections) return this.async(() => this.attached(), 200);
+          this.set('deviceTypes', this.$.devices.getTypes());
+          this.set('connectionTypes', Object.values(this.$.connections.getTypes()));
+        }
+      });
+    })(this);
+  </script>
+</dom-module>

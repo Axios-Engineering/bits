@@ -1,0 +1,102 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../base-shared-styles/base-shared-styles.html">
+<link rel="import" href="../network-manager-devices/network-manager-devices.html">
+
+<dom-module id="network-manager-toolbar">
+  <template>
+    <style include="base-shared-styles">
+      :host {
+        display: block;
+      }
+
+      paper-icon-button {
+        color: var(--base-toolbar-notifications-icon-color);
+      }
+
+      paper-icon-button:hover {
+        color: var(--base-toolbar-notifications-icon-hover-color);
+      }
+    </style>
+
+    <network-manager-devices
+      id="devices"
+      items="{{devices}}">
+    </network-manager-devices>
+
+    <paper-icon-button
+      id="icon"
+      icon="[[connection.icon]]"
+      title="[[connection.title]]">
+    </paper-icon-button>
+
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      const DEFAULTS = {
+        NO_CONNECTION: 'No Connections'
+      };
+
+      Polymer({
+        is: 'network-manager-toolbar',
+
+        properties: {
+          connection: {
+            type: Object,
+            computed: '_computeConnection(deviceTypes.*, devices.*)'
+          }
+        },
+
+        _computeConnection: function() {
+          const connection = {
+            icon: 'device:signal-wifi-0-bar',
+            title: DEFAULTS.NO_CONNECTION
+          };
+
+          if (!Array.isArray(this.devices) || !this.deviceTypes) return connection;
+
+          this.devices.filter((device) => device.AppliedConnection.length)
+          .forEach((device) => {
+            const appliedConnection = device.AppliedConnection[0];
+            const deviceType = device.DeviceType;
+
+            if (deviceType === this.deviceTypes.WIFI) {
+              connection.icon = 'notification:wifi';
+              connection.title = appliedConnection.connection.id;
+              connection.type = this.deviceTypes.WIFI;
+            } else if (deviceType === this.deviceTypes.ETHERNET && connection.type !== this.deviceTypes.WIFI) {
+              connection.icon = 'icons:swap-vert';
+              connection.title = appliedConnection.connection.id;
+              connection.type = this.deviceTypes.ETHERNET;
+            } else if (deviceType === this.deviceTypes.CELLULAR && (connection.type !== this.deviceTypes.WIFI || connection.type !== this.deviceTypes.ETHERNET)) {
+              connection.icon = 'hardware:sim-card';
+              connection.title = appliedConnection.connection.id;
+              connection.type = this.deviceTypes.CELLULAR;
+            }
+          });
+
+          return connection;
+        },
+
+        listeners: {
+          'icon.transitionend': '_onTransitionEnd'
+        },
+
+        _onTransitionEnd: function(event, detail) {
+          window.history.pushState({}, null, '/network-manager/');
+          window.dispatchEvent(new CustomEvent('location-changed'));
+        },
+
+        attached: function() {
+          if (!this.$.devices) {
+            this.async(() => this.attached(), 200);
+          } else {
+            this.set('deviceTypes', this.$.devices.getTypes());
+          }
+        }
+      });
+    })(this);
+  </script>
+</dom-module>
