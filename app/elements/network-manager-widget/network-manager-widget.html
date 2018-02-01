@@ -118,6 +118,10 @@
         text-align: right;
       }
 
+      .common-nowrap {
+        @apply --paper-font-common-nowrap;
+      }
+
       .no-connections {
         display: inline-block;
         width: 100%;
@@ -176,9 +180,9 @@
           <template is="dom-repeat" items="[[items]]">
             <span class="item">
               <span class="type"><iron-icon icon="[[item.icon]]"></iron-icon></span>
-              <span class="name">[[item.name]]</span>
-              <span class="device">[[item.device]]</span>
-              <span class="ip">[[item.ip]]</span>
+              <span class="name common-nowrap">[[item.name]]</span>
+              <span class="device common-nowrap">[[item.device]]</span>
+              <span class="ip common-nowrap">[[item.ip]]</span>
             </span>
           </template>
         </span>
