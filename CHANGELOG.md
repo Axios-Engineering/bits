@@ -1,3 +1,33 @@
+<a name="3.2.0"></a>
+# 3.2.0 (2018-02-02)
+
+
+### Bug Fixes
+
+* change camel case to treat soft block as separate words   (aafde58)
+* remove crud behavior from radios ui file; remove unnecessary computed funciton and call from ra   (aceba91)
+* remove crud manager from ui radios file   (efbf6a6)
+* remove unnecessary explicit saving of message center to api objects since this is done in the c   (6805512)
+* **connection-manager:** return promise from load   (0031ca7)
+* **connection-manager:** return promise from load   (b435dcf)
+* **network-manager-toolbar:** change property to be computed   (a473077)
+* **network-manager-toolbar:** change property to be computed   (0e880b4)
+* **network-manager-widget:** replace observers with computed properties and default message for no c   (2a2b364)
+* **network-manager-widget:** replace observers with computed properties and default message for no c   (14a279a)
+
+
+### Features
+
+* add widget and toolbar to home page   (5f62914)
+* add widget and toolbar to home page   (f1e6373)
+* connect ui toggle button for enabling and disabling wifi cards (place or remove wifi cards in   (c7fad5a)
+* enable basic wifi radio monitoring (wifi enabled versus not enabled)   (9be35d8)
+* init radio state in radio manager   (8df6eee)
+* initialize enable/disable wifi toggle button in UI   (593b9bb)
+* use dbus to softblock/unsoftblock wifi cards   (ee48b62)
+
+---
+
 <a name="3.1.0"></a>
 # 3.1.0 (2018-01-04)
 
