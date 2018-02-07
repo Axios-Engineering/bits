@@ -29,7 +29,7 @@ const nm = require('dbus-network-manager');
   class NetworkManagerApp {
     constructor() {
       this._deviceManager = new DeviceManager();
-      this._connectionManager = new ConnectionManager();
+      this._connectionManager = new ConnectionManager(this._deviceManager);
       this._radioManager = new RadioManager();
     }
 

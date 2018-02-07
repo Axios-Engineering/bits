@@ -33,6 +33,13 @@ limitations under the License.
         DEACTIVATE: `${ConnectionsMessenger.TAG} deactivate`
       };
     }
+
+    static get EVENT() {
+      return {
+        CONNECTION_ACTIVATED: `${ConnectionsMessenger.TAG} activated`,
+        CONNECTION_DEACTIVATED: `${ConnectionsMessenger.TAG} deactivated`
+      };
+    }
   }
 
   const CONNECTION_TYPES = {
@@ -64,6 +71,25 @@ limitations under the License.
       }
     },
 
+    ready: function() {
+      this._boundActivated = this._activated.bind(this);
+      this._boundDeactivated = this._deactivated.bind(this);
+    },
+
+    attached: function() {
+      this.async(() => {
+        this.addSocketEventListener(ConnectionsMessenger.EVENT.CONNECTION_ACTIVATED, this._boundActivated);
+        this.addSocketEventListener(ConnectionsMessenger.EVENT.CONNECTION_DEACTIVATED, this._boundDeactivated);
+      });
+    },
+
+    detached: function() {
+      this.async(() => {
+        this.removeEventListener(ConnectionsMessenger.EVENT.CONNECTION_DEACTIVATED, this._boundDeactivated);
+        this.removeEventListener(ConnectionsMessenger.EVENT.CONNECTION_ACTIVATED, this._boundActivated);
+      });
+    },
+
     _computeFilteredItems: function(type) {
       type = String(type).toUpperCase();
       if (type === 'ALL') return Array.from(this.items);
@@ -74,6 +100,14 @@ limitations under the License.
 
     getTypes: function() {
       return Object.assign({}, CONNECTION_TYPES);
+    },
+
+    _activated: function(connection) {
+      this.fire('network-manager-connection-activated', connection);
+    },
+
+    _deactivated: function(connection) {
+      this.fire('network-manager-connection-deactivated', connection);
     },
 
     activate: function(item) {
