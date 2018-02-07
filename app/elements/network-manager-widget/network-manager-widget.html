@@ -191,6 +191,7 @@
         _computeItems: function(deviceTypes, connectionTypes) {
           const devices = this.devices;
           const connections = this.connections;
+          console.log(devices, connections);
 
           if (!arrayHasValues(devices) || !arrayHasValues(connections) || !arrayHasValues(Object.keys(deviceTypes)) || !arrayHasValues(connectionTypes)) return [];
 
