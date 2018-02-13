@@ -16,7 +16,7 @@
       "element": "network-manager-widget"
     }],
     "dependencies": {
-      "bits-base": "^2.0.0"
+      "bits-base": "^2.17.1"
     },
     "icon": "icons:swap-vert"
 }
