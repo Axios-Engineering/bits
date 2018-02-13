@@ -127,6 +127,10 @@ limitations under the License.
           }
 
           if (this.page.properties) {
+            if(!element.set) {
+              this.async(() => this._observeElementItemId(element, itemId), 1);
+              return;
+            }
             Object.keys(this.page.properties).map((key) => element.set(key, this.page.properties[key]));
           }
         },
