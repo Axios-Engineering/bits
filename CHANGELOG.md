@@ -1,3 +1,18 @@
+<a name="3.3.0"></a>
+# 3.3.0 (2018-02-21)
+
+
+### Bug Fixes
+
+* **network-manager-widget:** remove debug console log   (f13a666)
+
+
+### Features
+
+* **network-de-activation:** allow users to add listeners for when a connection is de/activated   (7c94655)
+
+---
+
 <a name="3.2.0"></a>
 # 3.2.0 (2018-02-02)
 
