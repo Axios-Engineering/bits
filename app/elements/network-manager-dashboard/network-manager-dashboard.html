@@ -190,7 +190,7 @@ limitations under the License.
 
             let appliedConnections = [];
             if (Array.isArray(this.devices)) {
-              appliedConnections = this.devices.filter((device) => device.AppliedConnection.length > 0).map((device) => Object.assign({}, {interface: device.Interface, ip4Address: device.Ip4Address}, device.AppliedConnection[0]));
+              appliedConnections = this.devices.filter((device) => device && device.AppliedConnection && device.AppliedConnection.length > 0).map((device) => Object.assign({}, {interface: device.Interface, ip4Address: device.Ip4Address}, device.AppliedConnection[0]));
             }
 
             items = this.connections.filter((item) => supportedVals.includes(item.connection.type))

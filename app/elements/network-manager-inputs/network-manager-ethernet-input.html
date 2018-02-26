@@ -139,7 +139,7 @@ limitations under the License.
         b-title="Bridge Information"
         class="push-down">
         <network-manager-bridge-connection-input
-          value="{{item.bridge}}"
+          value="{{item.connection.master}}"
           disabled="[[disabled]]"
           readonly="[[readonly]]"
           invalid="{{invalidBridgeList.bridge}}"
@@ -193,7 +193,8 @@ limitations under the License.
 
         _computeBridgeOpened: function() {
           const mode = this._getIpv4MethodFromItem();
-          return (mode && mode === 'bridge');
+          return ((mode && mode === 'bridge') ||
+          (this.item && this.item.connection && this.item.connection.master && this.item.connection.master.length > 0));
         },
 
         observers: [

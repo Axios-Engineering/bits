@@ -309,6 +309,15 @@ limitations under the License.
             delete this.item['802-11-wireless-security'];
           }
 
+          // Hack rules for bridge slaves
+          if (this.item.ipv4 && this.item.ipv4.method === 'bridge') {
+            delete this.item.ipv4;
+          }
+
+          // Hack rules for bridge slaves
+          if (this.item.connection && this.item.connection.master) {
+            this.item.connection['slave-type'] = 'bridge';
+          }
           Object.keys(this.item).forEach((key) => deepRemoveEmpty(this.item[key]));
         },
 
