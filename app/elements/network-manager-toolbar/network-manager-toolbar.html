@@ -27,6 +27,7 @@
     <paper-icon-button
       id="icon"
       icon="[[connection.icon]]"
+      on-transitionend="_onTransitionEnd"
       title="[[connection.title]]">
     </paper-icon-button>
 
@@ -78,10 +79,6 @@
           });
 
           return connection;
-        },
-
-        listeners: {
-          'icon.transitionend': '_onTransitionEnd'
         },
 
         _onTransitionEnd: function(event, detail) {
