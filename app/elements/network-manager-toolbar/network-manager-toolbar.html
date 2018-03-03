@@ -58,7 +58,7 @@
 
           if (!Array.isArray(this.devices) || !this.deviceTypes) return connection;
 
-          this.devices.filter((device) => device && device.AppliedConnection && device.AppliedConnection.length)
+          this.devices.filter((device) => (Array.isArray(device.AppliedConnection) && device.AppliedConnection.length))
           .forEach((device) => {
             const appliedConnection = device.AppliedConnection[0];
             const deviceType = device.DeviceType;

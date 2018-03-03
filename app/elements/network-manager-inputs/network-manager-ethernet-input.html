@@ -193,8 +193,8 @@ limitations under the License.
 
         _computeBridgeOpened: function() {
           const mode = this._getIpv4MethodFromItem();
-          return ((mode && mode === 'bridge') ||
-          (this.item && this.item.connection && this.item.connection.master && this.item.connection.master.length > 0));
+          const hasMaster = this._connectionHasMaster();
+          return ((mode && mode === 'bridge') || hasMaster);
         },
 
         observers: [
@@ -214,6 +214,10 @@ limitations under the License.
           }
 
           this.set('invalid', invalid);
+        },
+
+        _connectionHasMaster: function() {
+          return (this.item && this.item.connection && this.item.connection.master && this.item.connection.master.length > 0);
         },
 
         _invalidListHasAnyInvalid: function(list) {

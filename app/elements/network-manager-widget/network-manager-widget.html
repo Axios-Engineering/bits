@@ -198,7 +198,7 @@
 
           if (!arrayHasValues(devices) || !arrayHasValues(connections) || !arrayHasValues(Object.keys(deviceTypes)) || !arrayHasValues(connectionTypes)) return [];
 
-          return devices.filter((device) => device.AppliedConnection.length)
+          return devices.filter((device) => (Array.isArray(device.AppliedConnection) && device.AppliedConnection.length))
           .map((device) => {
             const appliedConnection = device.AppliedConnection[0];
             const connection = connections.find((connection) => connection.connection.uuid === appliedConnection.connection.uuid);
