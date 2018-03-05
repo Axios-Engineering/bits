@@ -118,12 +118,14 @@
 
     <network-manager-connections
       id="connections"
-      items="{{connections}}">
+      items="{{connections}}"
+      types="{{_connectionTypes}}">
     </network-manager-connections>
 
     <network-manager-devices
       id="devices"
-      items="{{devices}}">
+      items="{{devices}}"
+      types="{{deviceTypes}}">
     </network-manager-devices>
 
     <a href="/network-manager" class="main">
@@ -183,13 +185,19 @@
             type: Object
           },
           connectionTypes: {
-            type: Array
+            type: Array,
+            computed: '_computeConnectionTypes(_connectionTypes.*)'
           },
           items: {
             type: Array,
             computed: '_computeItems(deviceTypes, connectionTypes, connections.*, devices.*)',
             observer: '_observeItems'
           }
+        },
+
+        _computeConnectionTypes: function() {
+          if (!this._connectionTypes) return [];
+          return Object.values(this._connectionTypes);
         },
 
         _computeItems: function(deviceTypes, connectionTypes) {
@@ -226,12 +234,6 @@
 
         refreshLayout: function() {
           this.async(() => this.fire('base-dashboard-refresh-layout'), 150);
-        },
-
-        attached: function() {
-          if (!this.$.devices || !this.$.connections) return this.async(() => this.attached(), 200);
-          this.set('deviceTypes', this.$.devices.getTypes());
-          this.set('connectionTypes', Object.values(this.$.connections.getTypes()));
         }
       });
     })(this);

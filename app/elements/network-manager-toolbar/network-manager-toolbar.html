@@ -21,7 +21,8 @@
 
     <network-manager-devices
       id="devices"
-      items="{{devices}}">
+      items="{{devices}}"
+      types="{{deviceTypes}}">
     </network-manager-devices>
 
     <paper-icon-button
@@ -47,6 +48,18 @@
           connection: {
             type: Object,
             computed: '_computeConnection(deviceTypes.*, devices.*)'
+          },
+          devices: {
+            type: Array,
+            value: () => {
+              return [];
+            }
+          },
+          deviceTypes: {
+            type: Array,
+            value: () => {
+              return [];
+            }
           }
         },
 
@@ -84,14 +97,6 @@
         _onTransitionEnd: function(event, detail) {
           window.history.pushState({}, null, '/network-manager/');
           window.dispatchEvent(new CustomEvent('location-changed'));
-        },
-
-        attached: function() {
-          if (!this.$.devices) {
-            this.async(() => this.attached(), 200);
-          } else {
-            this.set('deviceTypes', this.$.devices.getTypes());
-          }
         }
       });
     })(this);
