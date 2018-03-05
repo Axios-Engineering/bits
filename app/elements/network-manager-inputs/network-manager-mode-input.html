@@ -95,6 +95,10 @@ limitations under the License.
           value: {
             type: String,
             notify: true
+          },
+          isBridgeSlave: {
+            type: Boolean,
+            value: false
           }
         },
 
@@ -109,6 +113,16 @@ limitations under the License.
             label: mode,
             value: VALUES[mode.toUpperCase()]
           }));
+        },
+
+        observers: [
+          '_observeIsBridgeSlave(isBridgeSlave, items.*)'
+        ],
+
+        _observeIsBridgeSlave: function(isBridgeSlave) {
+          if(isBridgeSlave) {
+            this.async(() => this.set('value', VALUES.BRIDGE));
+          }
         }
 
       });
