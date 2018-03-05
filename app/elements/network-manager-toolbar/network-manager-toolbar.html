@@ -21,12 +21,14 @@
 
     <network-manager-devices
       id="devices"
-      items="{{devices}}">
+      items="{{devices}}"
+      types="{{deviceTypes}}">
     </network-manager-devices>
 
     <paper-icon-button
       id="icon"
       icon="[[connection.icon]]"
+      on-transitionend="_onTransitionEnd"
       title="[[connection.title]]">
     </paper-icon-button>
 
@@ -46,6 +48,18 @@
           connection: {
             type: Object,
             computed: '_computeConnection(deviceTypes.*, devices.*)'
+          },
+          devices: {
+            type: Array,
+            value: () => {
+              return [];
+            }
+          },
+          deviceTypes: {
+            type: Array,
+            value: () => {
+              return [];
+            }
           }
         },
 
@@ -57,7 +71,7 @@
 
           if (!Array.isArray(this.devices) || !this.deviceTypes) return connection;
 
-          this.devices.filter((device) => device.AppliedConnection.length)
+          this.devices.filter((device) => (Array.isArray(device.AppliedConnection) && device.AppliedConnection.length))
           .forEach((device) => {
             const appliedConnection = device.AppliedConnection[0];
             const deviceType = device.DeviceType;
@@ -80,21 +94,9 @@
           return connection;
         },
 
-        listeners: {
-          'icon.transitionend': '_onTransitionEnd'
-        },
-
         _onTransitionEnd: function(event, detail) {
           window.history.pushState({}, null, '/network-manager/');
           window.dispatchEvent(new CustomEvent('location-changed'));
-        },
-
-        attached: function() {
-          if (!this.$.devices) {
-            this.async(() => this.attached(), 200);
-          } else {
-            this.set('deviceTypes', this.$.devices.getTypes());
-          }
         }
       });
     })(this);

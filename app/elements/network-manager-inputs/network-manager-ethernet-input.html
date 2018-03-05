@@ -78,6 +78,7 @@ limitations under the License.
       <network-manager-mode-input
         mode-type="ethernet"
         value="{{item.ipv4.method}}"
+        is-bridge-slave="[[isBridgeSlave]]"
         disabled="[[disabled]]"
         readonly="[[readonly]]"
         invalid="{{invalidList.mode}}"
@@ -139,7 +140,7 @@ limitations under the License.
         b-title="Bridge Information"
         class="push-down">
         <network-manager-bridge-connection-input
-          value="{{item.bridge}}"
+          value="{{item.connection.master}}"
           disabled="[[disabled]]"
           readonly="[[readonly]]"
           invalid="{{invalidBridgeList.bridge}}"
@@ -188,12 +189,25 @@ limitations under the License.
           bridgeOpened: {
             type: Boolean,
             computed: '_computeBridgeOpened(item.*)'
+          },
+          isBridgeSlave: {
+            type: Boolean,
+            computed: '_computeIsBridgeSlave(item.connection.*)'
           }
         },
 
         _computeBridgeOpened: function() {
           const mode = this._getIpv4MethodFromItem();
-          return (mode && mode === 'bridge');
+          const hasMaster = this._connectionHasMaster();
+          return ((mode && mode === 'bridge') || hasMaster);
+        },
+
+        _computeIsBridgeSlave: function() {
+          return this.item.connection &&
+                 this.item.connection.master &&
+                 this.item.connection.master.length &&
+                 this.item.connection['slave-type'] &&
+                 this.item.connection['slave-type'].length;
         },
 
         observers: [
@@ -213,6 +227,10 @@ limitations under the License.
           }
 
           this.set('invalid', invalid);
+        },
+
+        _connectionHasMaster: function() {
+          return (this.item && this.item.connection && this.item.connection.master && this.item.connection.master.length > 0);
         },
 
         _invalidListHasAnyInvalid: function(list) {

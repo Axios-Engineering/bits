@@ -64,6 +64,14 @@ limitations under the License.
       type: {
         type: String
       },
+      types: {
+        type: Object,
+        value: () => {
+          return Object.freeze(CONNECTION_TYPES);
+        },
+        notify: true,
+        readonly: true
+      },
       filteredItems: {
         type: Array,
         computed: '_computeFilteredItems(type, items.*)',
@@ -96,10 +104,6 @@ limitations under the License.
       const connectionType = CONNECTION_TYPES[type];
       if (!Array.isArray(this.items) || !connectionType) return [];
       return this.items.filter((item) => (item.connection && item.connection.type === connectionType));
-    },
-
-    getTypes: function() {
-      return Object.assign({}, CONNECTION_TYPES);
     },
 
     _activated: function(connection) {

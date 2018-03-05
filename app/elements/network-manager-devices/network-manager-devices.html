@@ -56,6 +56,14 @@ limitations under the License.
       type: {
         type: String
       },
+      types: {
+        type: Object,
+        value: () => {
+          return Object.freeze(DEVICE_TYPES);
+        },
+        notify: true,
+        readOnly: true
+      },
       filteredItems: {
         type: Array,
         computed: '_computeFilteredItems(type, items.*)',
@@ -69,10 +77,6 @@ limitations under the License.
       const deviceType = DEVICE_TYPES[type];
       if (!Array.isArray(this.items) || !deviceType) return [];
       return this.items.filter((item) => (item.DeviceType === deviceType));
-    },
-
-    getTypes: function() {
-      return Object.assign({}, DEVICE_TYPES);
     },
 
     manage: function(item) {

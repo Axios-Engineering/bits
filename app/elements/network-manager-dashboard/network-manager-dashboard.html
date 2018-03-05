@@ -184,29 +184,38 @@ limitations under the License.
           let items = [];
 
           if (Array.isArray(this.connections)) {
-            const supported = this.$.connections.getTypes();
-            const supportedKeys = Object.keys(supported);
-            const supportedVals = supportedKeys.map((key) => supported[key]);
+            const supported = this.$.connections.types;
 
             let appliedConnections = [];
             if (Array.isArray(this.devices)) {
-              appliedConnections = this.devices.filter((device) => device.AppliedConnection.length > 0).map((device) => Object.assign({}, {interface: device.Interface, ip4Address: device.Ip4Address}, device.AppliedConnection[0]));
+              appliedConnections = this.devices.filter((device) => (Array.isArray(device.AppliedConnection) && device.AppliedConnection.length))
+              .map((device) => Object.assign({}, {interface: device.Interface, ip4Address: device.Ip4Address}, device.AppliedConnection[0]));
             }
 
-            items = this.connections.filter((item) => supportedVals.includes(item.connection.type))
+            items = this.connections.filter((item) => Object.values(supported).includes(item.connection.type))
             .map((item) => {
               const appliedConnection = appliedConnections.find((appliedConnection) => appliedConnection.connection.uuid === item.connection.uuid);
               const isActive = !!appliedConnection;
 
+              let ip4Address = null;
+              let device = null;
+
+              if (isActive) {
+                device = appliedConnection.interface;
+                if (appliedConnection.ip4Address > 0) {
+                  ip4Address = this.numToIp(appliedConnection.ip4Address);
+                }
+              }
+
               return Object.assign(item, {
                 active: isActive,
-                device: isActive ? appliedConnection.interface : null,
-                ip4Address: isActive && appliedConnection.ip4Address > 0 ? this.numToIp(appliedConnection.ip4Address) : null
+                device: device,
+                ip4Address: ip4Address
               });
             }).sort(sortByActiveAndConnectionId);
 
             items = items.map((item) => {
-              const routePath = supportedKeys.find((key) => supported[key] === item.connection.type).toLowerCase();
+              const routePath = Object.keys(supported).find((key) => supported[key] === item.connection.type).toLowerCase();
               const state = this.stateList.find((state) => state.id === item.id);
 
               if (state) {
