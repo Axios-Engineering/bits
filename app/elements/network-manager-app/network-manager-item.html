@@ -289,19 +289,23 @@ limitations under the License.
         },
 
         _sanitizeItem: function() {
-          if (Array.isArray(this.item.ipv4.dns)) {
+          if (this.item.hasOwnProperty('ipv4') && this.item.ipv4.method === 'auto') {
+            delete this.item.ipv4['address-data'];
+            delete this.item.ipv4.addresses;
+          }
+          if (this.item.hasOwnProperty('ipv4') && Array.isArray(this.item.ipv4.dns)) {
             this.item.ipv4.dns = [...new Set(this.item.ipv4.dns.filter((item) => !!item))];
           }
 
-          if (Array.isArray(this.item.ipv4['address-data'])) {
+          if (this.item.hasOwnProperty('ipv4') && Array.isArray(this.item.ipv4['address-data'])) {
             this.item.ipv4['address-data'] = this.item.ipv4['address-data'].filter((item) => !!Object.keys(item).length);
           }
 
-          if (this.item.connection.hasOwnProperty('autoconnect-priority') && typeof this.item.connection['autoconnect-priority'] === 'string') {
+          if (this.item.hasOwnProperty('connection') && this.item.connection.hasOwnProperty('autoconnect-priority') && typeof this.item.connection['autoconnect-priority'] === 'string') {
             this.item.connection['autoconnect-priority'] = parseFloat(this.item.connection['autoconnect-priority']);
           }
 
-          if (this.item.connection.hasOwnProperty('interface-name') && this.item.connection['interface-name'].length === 0) {
+          if (this.item.hasOwnProperty('connection') && this.item.connection.hasOwnProperty('interface-name') && this.item.connection['interface-name'].length === 0) {
             delete this.item.connection['interface-name'];
           }
 
