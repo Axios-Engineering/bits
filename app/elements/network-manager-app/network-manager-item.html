@@ -289,38 +289,41 @@ limitations under the License.
         },
 
         _sanitizeItem: function() {
-          if (this.item.hasOwnProperty('ipv4') && this.item.ipv4.method === 'auto') {
-            delete this.item.ipv4['address-data'];
-            delete this.item.ipv4.addresses;
-          }
-          if (this.item.hasOwnProperty('ipv4') && Array.isArray(this.item.ipv4.dns)) {
-            this.item.ipv4.dns = [...new Set(this.item.ipv4.dns.filter((item) => !!item))];
-          }
-
-          if (this.item.hasOwnProperty('ipv4') && Array.isArray(this.item.ipv4['address-data'])) {
-            this.item.ipv4['address-data'] = this.item.ipv4['address-data'].filter((item) => !!Object.keys(item).length);
-          }
-
-          if (this.item.hasOwnProperty('connection') && this.item.connection.hasOwnProperty('autoconnect-priority') && typeof this.item.connection['autoconnect-priority'] === 'string') {
-            this.item.connection['autoconnect-priority'] = parseFloat(this.item.connection['autoconnect-priority']);
-          }
-
-          if (this.item.hasOwnProperty('connection') && this.item.connection.hasOwnProperty('interface-name') && this.item.connection['interface-name'].length === 0) {
-            delete this.item.connection['interface-name'];
+          if( this.item.hasOwnProperty('ipv4')) {
+            if (this.item.hasOwnProperty('ipv4') && this.item.ipv4.method === 'auto') {
+              delete this.item.ipv4['address-data'];
+              delete this.item.ipv4.addresses;
+            }
+            if (Array.isArray(this.item.ipv4.dns)) {
+              this.item.ipv4.dns = [...new Set(this.item.ipv4.dns.filter((item) => !!item))];
+            }
+            if (Array.isArray(this.item.ipv4['address-data'])) {
+              this.item.ipv4['address-data'] = this.item.ipv4['address-data'].filter((item) => !!Object.keys(item).length);
+            }
+            if (this.item.ipv4.method === 'bridge') {
+              delete this.item.ipv4;
+            }
           }
 
-          if (this.item['802-11-wireless-security'] && Object.keys(this.item['802-11-wireless-security']).length === 0) {
-            delete this.item['802-11-wireless-security'];
+          if( this.item.hasOwnProperty('connection')) {
+            if (this.item.connection.hasOwnProperty('autoconnect-priority') && typeof this.item.connection['autoconnect-priority'] === 'string') {
+              this.item.connection['autoconnect-priority'] = parseFloat(this.item.connection['autoconnect-priority']);
+            }
+
+            if (this.item.connection.hasOwnProperty('interface-name') && this.item.connection['interface-name'].length === 0) {
+              delete this.item.connection['interface-name'];
+            }
+            if (this.item.connection.master) {
+              this.item.connection['slave-type'] = 'bridge';
+            }
           }
 
-          if (this.item.ipv4 && this.item.ipv4.method === 'bridge') {
-            delete this.item.ipv4;
+          if( this.item.hasOwnProperty('802-11-wireless-security')){
+            if (Object.keys(this.item['802-11-wireless-security']).length === 0) {
+              delete this.item['802-11-wireless-security'];
+            }
           }
-
-          if (this.item.connection && this.item.connection.master) {
-            this.item.connection['slave-type'] = 'bridge';
-          }
-
+          
           Object.keys(this.item).forEach((key) => deepRemoveEmpty(this.item[key]));
         },
 
