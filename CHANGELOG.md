@@ -1,3 +1,18 @@
+<a name="3.3.1"></a>
+## 3.3.1 (2018-04-17)
+
+
+### Bug Fixes
+
+* allows you to set a bridge slave for ethernet   (993d743)
+* fix missing imports   (04390f2)
+* **browser:** Cannot read property 'icon' of undefined   (dd4fd7f)
+* **connection:** fixes bugs with modifying connections   (6c106fe), closes BSUM-37
+* **Ethernet bridge mode:** Properly selects the mode on editing an existing ethernet   (2fb354d)
+* refactored if checks   (2fc2287)
+
+---
+
 <a name="3.3.0"></a>
 # 3.3.0 (2018-02-21)
 
