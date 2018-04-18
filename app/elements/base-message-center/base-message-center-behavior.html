@@ -225,6 +225,37 @@ limitations under the License.
         });
       },
 
+      sendEvent: function(event, ...data) {
+        this._startLoading();
+        return this._waitUntilConnected()
+        .then(() => {
+          const socket = this.socket;
+          return new Promise((resolve, reject) => {
+            const requestId = getNextRequestId();
+            const onResponse = (meta, err, data) => {
+              if (event === meta.event && requestId === meta.responseId) {
+                socket.removeEventListener('response', onResponse);
+                this._stopLoading();
+                if (err) {
+                  if (meta && meta.reason) {
+                    this.fire('bits-base-error', {error: err, data: meta.data});
+                  }
+                  reject(err);
+                } else {
+                  resolve(data);
+                }
+              }
+            };
+            socket.on('response', onResponse);
+            const meta = {
+              event: event,
+              requestId: requestId
+            };
+            socket.emit('sendEvent', meta, ...data);
+          });
+        });
+      },
+
       addSocketEventListener: function(event, listener) {
         const info = {
           event: event,
