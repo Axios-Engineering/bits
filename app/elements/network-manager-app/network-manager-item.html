@@ -289,7 +289,7 @@ limitations under the License.
         },
 
         _sanitizeItem: function() {
-          if( this.item.hasOwnProperty('ipv4')) {
+          if (this.item.hasOwnProperty('ipv4')) {
             if (this.item.hasOwnProperty('ipv4') && this.item.ipv4.method === 'auto') {
               delete this.item.ipv4['address-data'];
               delete this.item.ipv4.addresses;
@@ -305,7 +305,7 @@ limitations under the License.
             }
           }
 
-          if( this.item.hasOwnProperty('connection')) {
+          if (this.item.hasOwnProperty('connection')) {
             if (this.item.connection.hasOwnProperty('autoconnect-priority') && typeof this.item.connection['autoconnect-priority'] === 'string') {
               this.item.connection['autoconnect-priority'] = parseFloat(this.item.connection['autoconnect-priority']);
             }
@@ -318,12 +318,11 @@ limitations under the License.
             }
           }
 
-          if( this.item.hasOwnProperty('802-11-wireless-security')){
+          if (this.item.hasOwnProperty('802-11-wireless-security')) {
             if (Object.keys(this.item['802-11-wireless-security']).length === 0) {
               delete this.item['802-11-wireless-security'];
             }
           }
-          
           Object.keys(this.item).forEach((key) => deepRemoveEmpty(this.item[key]));
         },
 
