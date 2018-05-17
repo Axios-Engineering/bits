@@ -27,6 +27,7 @@ limitations under the License.
 <link rel="import" href="./network-manager-ipv4-input.html">
 <link rel="import" href="./network-manager-subnet-prefix-input.html">
 <link rel="import" href="./network-manager-cidrv4-input.html">
+<link rel="import" href="./network-manager-stp-input.html">
 
 <dom-module id="network-manager-bridge-input">
   <template>
@@ -82,6 +83,16 @@ limitations under the License.
         invalid="{{invalidList.mode}}"
         required>
       </network-manager-mode-input>
+    </base-single-grid-item-wrapper>
+
+    <base-single-grid-item-wrapper
+        b-title="Network Information"
+        class="push-down">
+        <network-manager-stp-input
+          checked="{{item.bridge.stp}}"
+          disabled="[[disabled]]"
+          readonly="[[readonly]]">
+      </network-manager-stp-input>
     </base-single-grid-item-wrapper>
 
     <iron-collapse opened="[[staticSharedOpened]]">
@@ -193,7 +204,8 @@ limitations under the License.
           this.set('item', Object.assign({}, {
             connection: {autoconnect: false, type: 'bridge'},
             ipv4: {},
-            ipv6: {method: 'ignore'}
+            ipv6: {method: 'ignore'},
+            bridge: {stp: true}
           }));
         }
 

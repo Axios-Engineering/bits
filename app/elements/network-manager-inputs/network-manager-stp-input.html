@@ -1,0 +1,60 @@
+<!--
+Copyright 2018 LGS Innovations
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+
+<dom-module id="network-manager-stp-input">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+      @media (max-width: 600px) {
+        .hide-below-600 {
+          display: none;
+        }
+      }
+    </style>
+
+    <paper-toggle-button
+      checked="{{checked}}"
+      disabled="[[_calculateDisabled(disabled, readonly)]]">
+      <span>Enable Spanning Tree Protocol</span>
+    </paper-toggle-button>
+  </template>
+  <script>
+    ((global) => {
+      'use strict';
+
+      Polymer({
+        is: 'network-manager-stp-input',
+
+        properties: {
+          checked: {
+            type: Boolean,
+            notify: true
+          }
+        },
+
+        _calculateDisabled(disabled, readonly) {
+          return disabled || readonly;
+        }
+
+      });
+    })(this);
+  </script>
+</dom-module>
