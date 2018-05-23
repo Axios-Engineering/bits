@@ -1,3 +1,13 @@
+<a name="3.4.0"></a>
+# 3.4.0 (2018-05-23)
+
+
+### Features
+
+* add ability to set the stp   (f13a18f), closes BSUM-56
+
+---
+
 <a name="3.3.1"></a>
 ## 3.3.1 (2018-04-17)
 
